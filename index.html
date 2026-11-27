@@ -6,416 +6,997 @@
 <title>EDOM &amp; Yohi — Wedding Invitation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600&family=Noto+Serif+Ethiopic:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&family=Noto+Serif+Ethiopic:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
-  /* ============ BRIDAL PALETTE ============ */
-  :root {
-    --ivory: #FFFBF5;
-    --cream: #FDF6EE;
-    --warm-white: #FFFFFF;
-    --champagne: #F3E5C9;
-    --blush: #F7DDE0;
-    --blush-deep: #E8B4B8;
-    --rose-gold: #B76E79;
-    --rose-gold-dark: #9C5A64;
-    --gold: #C9A96E;
-    --gold-light: #E8D5B0;
-    --text: #4A3F3A;
-    --text-soft: #7A6B63;
-    --shadow: rgba(183, 110, 121, 0.12);
-    --shadow-strong: rgba(183, 110, 121, 0.22);
-    --serif: "Cormorant Garamond", "Noto Serif Ethiopic", Georgia, serif;
-    --sans: "Montserrat", "Noto Serif Ethiopic", sans-serif;
-    --am: "Noto Serif Ethiopic", "Cormorant Garamond", serif;
-    --radius: 18px;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html { scroll-behavior: smooth; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    min-height: 100vh;
-    background:
-      radial-gradient(ellipse at 15% 0%, rgba(247, 221, 224, 0.55), transparent 55%),
-      radial-gradient(ellipse at 85% 10%, rgba(243, 229, 201, 0.6), transparent 50%),
-      radial-gradient(ellipse at 50% 100%, rgba(247, 221, 224, 0.35), transparent 60%),
-      var(--ivory);
-    color: var(--text);
-    font-family: var(--sans);
-    padding: env(safe-area-inset-top, 0px) 12px env(safe-area-inset-bottom, 0px);
-    -webkit-font-smoothing: antialiased;
-  }
+/* ======================= PALETTE ======================= */
+:root {
+  --ivory: #FFFCF7;
+  --cream: #FCF8F1;
+  --champagne: #F3E5C9;
+  --champagne-light: #FAF3E5;
+  --blush: #F7DDE0;
+  --blush-light: #FBEEEF;
+  --rose-gold: #B76E79;
+  --rose-gold-dark: #8C4A53;
+  --gold: #C9A96E;
+  --gold-dark: #A88849;
+  --gold-light: #E8D5B0;
+  --text: #4A3F3A;
+  --text-soft: #7A6B63;
+  --text-light: #9B8D83;
+  --shadow: rgba(183, 110, 121, 0.1);
+  --shadow-strong: rgba(140, 74, 83, 0.2);
+  --serif: "Cormorant Garamond", "Noto Serif Ethiopic", Georgia, serif;
+  --script: "Great Vibes", "Cormorant Garamond", cursive;
+  --sans: "Montserrat", "Noto Serif Ethiopic", sans-serif;
+  --am: "Noto Serif Ethiopic", "Cormorant Garamond", serif;
+}
 
-  /* ============ TOP BAR ============ */
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    max-width: 620px; margin: 0 auto; padding: 16px 4px 6px;
-  }
-  .monogram {
-    font-family: var(--serif); font-size: 22px; letter-spacing: 3px;
-    color: var(--rose-gold); font-weight: 600;
-  }
-  .lang-switch {
-    display: flex; gap: 0; border: 1px solid var(--gold);
-    border-radius: 999px; overflow: hidden; background: var(--warm-white);
-  }
-  .lang-switch button {
-    font: inherit; font-size: 12px; letter-spacing: .5px;
-    padding: 7px 14px; border: 0; cursor: pointer;
-    background: transparent; color: var(--text-soft);
-    transition: background .25s, color .25s;
-  }
-  .lang-switch button[aria-pressed="true"] {
-    background: var(--rose-gold); color: #fff; font-weight: 600;
-  }
-  .lang-switch button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+/* ======================= RESET ======================= */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+html, body { margin: 0; padding: 0; }
+body {
+  min-height: 100vh;
+  background: var(--ivory);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
 
-  /* ============ HERO / MAIN CARD ============ */
-  .hero {
-    max-width: 620px; margin: 10px auto 28px;
-    background: var(--warm-white);
-    border: 1px solid var(--gold-light);
-    border-radius: 28px;
-    padding: 46px 30px 34px;
+/* ======================= TOP BAR ======================= */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  background: rgba(255, 252, 247, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(201, 169, 110, 0.18);
+  transition: background 0.3s;
+}
+.monogram {
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 600; letter-spacing: 4px;
+  color: var(--rose-gold);
+}
+.monogram .amp-small { font-family: var(--script); color: var(--gold); font-size: 22px; }
+.lang-switch {
+  display: flex; gap: 0; border: 1px solid var(--gold);
+  border-radius: 999px; overflow: hidden;
+  background: rgba(255, 252, 247, 0.9);
+}
+.lang-switch button {
+  font: inherit; font-size: 11px; letter-spacing: 1px;
+  font-weight: 500; text-transform: uppercase;
+  padding: 7px 14px; border: 0; cursor: pointer;
+  background: transparent; color: var(--text-soft);
+  transition: background 0.25s, color 0.25s;
+}
+.lang-switch button[aria-pressed="true"] {
+  background: var(--rose-gold); color: #fff;
+}
+.lang-switch button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+/* ======================= HERO ======================= */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 100px 24px 60px;
+  overflow: hidden;
+  background-color: var(--champagne-light);
+  background-image:
+    radial-gradient(ellipse at top right, rgba(247, 221, 224, 0.85), transparent 55%),
+    radial-gradient(ellipse at bottom left, rgba(243, 229, 201, 0.9), transparent 55%),
+    radial-gradient(ellipse at center, rgba(255, 252, 247, 0.6), transparent 70%),
+    linear-gradient(135deg, #FDF6EE 0%, #F8EDE0 100%);
+  transition: background-image 0.6s ease;
+}
+.hero.has-photo {
+  background-image:
+    linear-gradient(180deg, rgba(74, 63, 58, 0.25) 0%, rgba(74, 63, 58, 0.1) 35%, rgba(74, 63, 58, 0.5) 100%),
+    var(--hero-image, linear-gradient(135deg, #F3E5C9, #F7DDE0));
+  background-size: cover;
+  background-position: center;
+}
+.hero.has-photo .hero-kicker,
+.hero.has-photo .hero-names,
+.hero.has-photo .hero-date,
+.hero.has-photo .hero-scroll { color: #FFFCF7; text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4); }
+.hero.has-photo .hero-kicker { color: var(--gold-light); }
+.hero.has-photo .floral-deco { color: rgba(255, 252, 247, 0.45); }
+.hero.has-photo .hero-ornament circle,
+.hero.has-photo .hero-ornament path { stroke: rgba(255, 252, 247, 0.6); }
+
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 640px;
+  animation: heroFade 1.4s ease both;
+}
+@keyframes heroFade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-kicker {
+  font-family: var(--serif); font-style: italic;
+  font-size: 16px; letter-spacing: 0.4px;
+  color: var(--rose-gold-dark);
+  margin: 0 0 14px;
+  transition: color 0.4s;
+}
+.hero-names {
+  font-family: var(--script);
+  font-weight: 400;
+  font-size: clamp(58px, 18vw, 120px);
+  line-height: 0.95;
+  margin: 0;
+  color: var(--rose-gold-dark);
+  letter-spacing: 1px;
+  transition: color 0.4s;
+}
+.hero-names .amp {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.55em;
+  color: var(--gold);
+  display: inline-block;
+  transform: translateY(-0.15em);
+  margin: 0 6px;
+}
+.hero-ornament {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; margin: 20px auto 18px;
+}
+.hero-ornament svg { width: 140px; height: 24px; }
+.hero-date {
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 0;
+  transition: color 0.4s;
+}
+.hero-location {
+  font-family: var(--serif); font-style: italic;
+  font-size: 16px; margin: 6px 0 0;
+  color: var(--text-soft);
+}
+.hero.has-photo .hero-location { color: rgba(255, 252, 247, 0.92); text-shadow: 0 2px 20px rgba(0,0,0,0.4); }
+
+.hero-scroll {
+  position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+  color: var(--text-soft);
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  animation: scrollBounce 2.2s ease-in-out infinite;
+}
+.hero-scroll::after {
+  content: ""; width: 1px; height: 26px;
+  background: currentColor;
+}
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.8; }
+  50% { transform: translateX(-50%) translateY(6px); opacity: 1; }
+}
+
+/* Floral decorations */
+.floral-deco {
+  position: absolute; color: var(--rose-gold); opacity: 0.55;
+  pointer-events: none;
+  transition: color 0.4s, opacity 0.4s;
+}
+.floral-deco.tl { top: 60px; left: 20px; width: 90px; height: 90px; }
+.floral-deco.tr { top: 60px; right: 20px; width: 90px; height: 90px; transform: scaleX(-1); }
+.floral-deco.bl { bottom: 60px; left: 20px; width: 70px; height: 70px; transform: scaleY(-1); }
+.floral-deco.br { bottom: 60px; right: 20px; width: 70px; height: 70px; transform: scale(-1, -1); }
+
+@media (min-width: 640px) {
+  .floral-deco.tl, .floral-deco.tr { width: 140px; height: 140px; top: 80px; }
+  .floral-deco.bl, .floral-deco.br { width: 110px; height: 110px; bottom: 70px; }
+}
+
+/* ======================= SECTIONS ======================= */
+.section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 70px 24px;
+  text-align: center;
+  position: relative;
+}
+.section-title {
+  font-family: var(--script);
+  font-size: clamp(38px, 8vw, 54px);
+  font-weight: 400;
+  color: var(--rose-gold);
+  margin: 0 0 6px;
+  line-height: 1.1;
+}
+.section-kicker {
+  font-family: var(--sans);
+  font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 8px;
+  font-weight: 500;
+}
+.section-sub {
+  font-family: var(--serif); font-style: italic;
+  font-size: 16px; color: var(--text-soft);
+  margin: 0 0 30px;
+}
+
+/* Elegant divider flourish */
+.flourish {
+  display: block;
+  margin: 16px auto 26px;
+  width: 180px; height: 22px;
+  color: var(--gold);
+}
+
+/* ======================= INVITATION ======================= */
+.invitation { background: var(--ivory); }
+.invitation-text {
+  font-family: var(--serif);
+  font-size: 20px; line-height: 1.8;
+  color: var(--text);
+  max-width: 540px;
+  margin: 0 auto;
+}
+.invitation-text em { color: var(--rose-gold-dark); font-style: italic; }
+
+/* ======================= COUNTDOWN ======================= */
+.countdown {
+  background: linear-gradient(180deg, var(--ivory) 0%, var(--champagne-light) 100%);
+}
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.cd-cell {
+  background: var(--ivory);
+  border: 1px solid var(--gold-light);
+  border-radius: 16px;
+  padding: 18px 6px 14px;
+  position: relative;
+  box-shadow: 0 8px 24px -14px var(--shadow-strong);
+}
+.cd-cell::before {
+  content: ""; position: absolute; inset: 6px;
+  border: 1px solid rgba(201, 169, 110, 0.28);
+  border-radius: 10px;
+  pointer-events: none;
+}
+.cd-num {
+  display: block;
+  font-family: var(--serif);
+  font-size: clamp(28px, 7vw, 44px);
+  font-weight: 500;
+  color: var(--rose-gold-dark);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+.cd-lbl {
+  display: block;
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-top: 8px;
+  font-weight: 500;
+}
+@media (max-width: 420px) {
+  .countdown-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* ======================= DETAILS ======================= */
+.details { background: var(--ivory); }
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+@media (min-width: 560px) {
+  .detail-grid { grid-template-columns: 1fr 1fr; }
+}
+.detail-card {
+  background: var(--ivory);
+  border: 1px solid var(--gold-light);
+  border-radius: 20px;
+  padding: 28px 20px;
+  position: relative;
+  box-shadow: 0 10px 28px -18px var(--shadow-strong);
+  transition: transform 0.35s, box-shadow 0.35s;
+}
+.detail-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px -18px var(--shadow-strong); }
+.detail-icon {
+  width: 44px; height: 44px;
+  margin: 0 auto 12px;
+  color: var(--rose-gold);
+}
+.detail-card h3 {
+  font-family: var(--sans);
+  font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin: 0 0 10px;
+  font-weight: 500;
+}
+.detail-value {
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 600;
+  color: var(--text);
+  margin: 4px 0;
+  line-height: 1.4;
+}
+.detail-sub {
+  font-family: var(--serif); font-style: italic;
+  font-size: 15px; color: var(--text-soft);
+  margin: 6px 0 0;
+}
+
+/* ======================= GALLERY ======================= */
+.gallery {
+  background: linear-gradient(180deg, var(--champagne-light) 0%, var(--blush-light) 100%);
+}
+.main-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--champagne) 0%, var(--blush) 100%);
+  border: 4px solid var(--ivory);
+  box-shadow:
+    0 0 0 1px var(--gold-light),
+    0 24px 60px -24px var(--shadow-strong);
+  max-width: 480px;
+  margin: 0 auto;
+}
+.main-frame img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.main-frame .placeholder {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px;
+  color: var(--rose-gold-dark);
+  font-family: var(--serif); font-style: italic; font-size: 18px;
+  padding: 30px; text-align: center;
+}
+.main-frame .placeholder .cam-icon {
+  width: 64px; height: 64px; opacity: 0.5;
+}
+.thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 480px;
+  margin: 16px auto 0;
+}
+.thumb {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--ivory);
+  border: 2px solid var(--ivory);
+  box-shadow: 0 0 0 1px var(--gold-light), 0 6px 16px -10px var(--shadow-strong);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.thumb:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px var(--gold), 0 10px 20px -10px var(--shadow-strong); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .empty {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: var(--gold); opacity: 0.6;
+  background: var(--cream);
+  font-weight: 300;
+}
+.thumb .del-thumb {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px;
+  border-radius: 50%; border: 0;
+  background: rgba(74, 63, 58, 0.7);
+  color: #fff; font-size: 12px; line-height: 1;
+  cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+.thumb:hover .del-thumb { opacity: 1; }
+@media (max-width: 640px) {
+  .thumb .del-thumb { opacity: 0.9; }
+}
+.upload-controls {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+.upload-controls .btn { font-size: 12px; padding: 9px 16px; }
+
+/* ======================= BUTTONS ======================= */
+.btn {
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 500;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  cursor: pointer;
+  background: var(--ivory);
+  color: var(--rose-gold-dark);
+  border: 1px solid var(--rose-gold);
+  border-radius: 999px;
+  padding: 11px 22px;
+  transition: all 0.25s ease;
+  display: inline-flex; align-items: center; gap: 6px;
+  text-decoration: none;
+}
+.btn:hover:not(:disabled) {
+  background: var(--rose-gold); color: #fff;
+  box-shadow: 0 8px 20px -8px var(--shadow-strong);
+  transform: translateY(-1px);
+}
+.btn.primary { background: var(--rose-gold); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--rose-gold-dark); }
+.btn.ghost { border-color: var(--gold); color: var(--gold-dark); }
+.btn.ghost:hover:not(:disabled) { background: var(--gold); color: #fff; }
+.btn.danger { border-color: #b3454d; color: #b3454d; }
+.btn.danger:hover:not(:disabled) { background: #b3454d; color: #fff; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* ======================= WISHES ======================= */
+.wishes { background: var(--ivory); }
+.wish-form {
+  max-width: 480px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--cream);
+  border: 1px solid var(--gold-light);
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: 0 12px 32px -22px var(--shadow-strong);
+}
+.wish-form input[type=text],
+.wish-form textarea {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--text);
+  background: var(--ivory);
+  border: 1px solid var(--gold-light);
+  border-radius: 12px;
+  padding: 12px 16px;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.wish-form input[type=text]::placeholder,
+.wish-form textarea::placeholder {
+  color: var(--text-light);
+  font-style: italic;
+}
+.wish-form input:focus, .wish-form textarea:focus {
+  outline: none;
+  border-color: var(--rose-gold);
+  box-shadow: 0 0 0 3px rgba(183, 110, 121, 0.12);
+}
+.wish-form textarea { resize: vertical; min-height: 90px; }
+.wish-form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.wish-form button[type=submit] { align-self: center; margin-top: 4px; }
+
+.wa-row { text-align: center; margin: 14px 0 0; }
+.wa-btn { border-color: #25D366; color: #1faa50; }
+.wa-btn:hover { background: #25D366; color: #fff; }
+
+.wish-status {
+  min-height: 1.2em; text-align: center;
+  font-size: 13px; margin: 12px 0 0;
+  color: var(--text-soft);
+  font-family: var(--serif); font-style: italic;
+}
+.wish-status.ok { color: #1f8a4c; font-weight: 500; font-style: normal; }
+.wish-status.err { color: #b3454d; font-weight: 500; font-style: normal; }
+
+.wish-list {
+  list-style: none; padding: 0;
+  margin: 26px auto 0;
+  max-width: 600px;
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: 460px; overflow-y: auto;
+}
+.wish-list::-webkit-scrollbar { width: 4px; }
+.wish-list::-webkit-scrollbar-thumb { background: var(--gold-light); border-radius: 4px; }
+.wish-item {
+  background: var(--cream);
+  border: 1px solid var(--blush);
+  border-radius: 16px;
+  padding: 16px 18px;
+  position: relative;
+}
+.wish-item::before {
+  content: "❝";
+  position: absolute;
+  top: 8px; left: 14px;
+  font-family: var(--serif);
+  font-size: 30px;
+  color: var(--rose-gold);
+  opacity: 0.35;
+  line-height: 1;
+}
+.wish-name {
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--rose-gold-dark);
+  margin: 0 0 6px;
+  font-size: 16px;
+  padding-left: 22px;
+}
+.wish-msg {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.wish-time {
+  margin: 8px 0 0;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+.wish-empty {
+  text-align: center;
+  color: var(--text-soft);
+  font-family: var(--serif); font-style: italic;
+  font-size: 16px; padding: 24px 0;
+}
+
+/* ======================= QR SECTION ======================= */
+.qr-section {
+  background: linear-gradient(180deg, var(--blush-light) 0%, var(--ivory) 100%);
+}
+.qr-card {
+  max-width: 400px;
+  margin: 0 auto;
+  background: var(--ivory);
+  border: 1px solid var(--gold-light);
+  border-radius: 24px;
+  padding: 30px 24px;
+  box-shadow: 0 16px 40px -24px var(--shadow-strong);
+}
+.qr-card img {
+  width: 180px; height: 180px;
+  image-rendering: pixelated;
+  display: block; margin: 0 auto;
+  padding: 12px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px -12px var(--shadow);
+}
+.qr-note {
+  font-family: var(--serif); font-style: italic;
+  font-size: 14px; color: var(--text-soft);
+  margin: 14px 0 18px;
+  line-height: 1.5;
+}
+.qr-actions {
+  display: flex; gap: 8px;
+  justify-content: center; flex-wrap: wrap;
+}
+
+details.url-config {
+  margin-top: 20px;
+  text-align: left;
+  background: var(--cream);
+  border: 1px solid var(--gold-light);
+  border-radius: 14px;
+  padding: 0;
+}
+details.url-config summary {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  font-weight: 500;
+  list-style: none;
+  display: flex; align-items: center; justify-content: space-between;
+}
+details.url-config summary::-webkit-details-marker { display: none; }
+details.url-config summary::after {
+  content: "▾"; color: var(--gold); transition: transform 0.2s;
+}
+details.url-config[open] summary::after { transform: rotate(180deg); }
+.url-config-inner {
+  padding: 0 16px 16px;
+}
+.url-warn {
+  margin: 0 0 10px; padding: 10px 12px;
+  font-size: 12px; line-height: 1.55; border-radius: 8px;
+  border-left: 3px solid #d9a800; background: #fdf4d7; color: #7a5f00;
+  word-break: break-word;
+}
+.url-warn.ok { border-left-color: var(--rose-gold); background: #fceff0; color: var(--rose-gold-dark); }
+.url-row { display: flex; gap: 6px; }
+.url-row input {
+  flex: 1; min-width: 0;
+  font: inherit; font-size: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--gold-light);
+  border-radius: 8px;
+  background: var(--ivory);
+  color: var(--text);
+}
+.url-row input:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.url-row .btn { font-size: 11px; padding: 9px 14px; }
+
+/* ======================= FOOTER ======================= */
+.footer {
+  text-align: center;
+  padding: 60px 24px 40px;
+  background: var(--ivory);
+  border-top: 1px solid rgba(201, 169, 110, 0.18);
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+}
+.footer-names {
+  font-family: var(--script);
+  font-size: 42px;
+  color: var(--rose-gold);
+  margin: 0 0 6px;
+  line-height: 1;
+}
+.footer-names .amp {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.55em;
+  color: var(--gold);
+  margin: 0 4px;
+}
+.footer-tag {
+  font-family: var(--serif); font-style: italic;
+  font-size: 14px; color: var(--text-soft);
+  margin: 8px 0 0;
+  letter-spacing: 0.5px;
+}
+
+/* ======================= TOAST ======================= */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(140%);
+  background: var(--rose-gold-dark);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-family: var(--serif);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 9999;
+  max-width: 88vw;
+  text-align: center;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.error { background: #b3454d; }
+
+/* ======================= REVEAL ANIMATIONS ======================= */
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ======================= PRINT SIGNBOARD ======================= */
+.sign { display: none; }
+@media print {
+  @page { size: 24in 36in; margin: 0; }
+  body { background: #fff; padding: 0; }
+  .topbar, .hero, .section, .footer, .toast { display: none !important; }
+  .sign {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between;
+    width: 24in; height: 36in;
+    background: var(--ivory);
+    color: var(--rose-gold-dark);
+    border: 0.6in solid var(--gold);
+    padding: 2.2in 1.5in 2in;
     text-align: center;
-    position: relative;
-    box-shadow: 0 18px 50px -18px var(--shadow-strong), 0 2px 6px var(--shadow);
-    overflow: hidden;
-    animation: fadeUp .8s ease both;
+    font-family: var(--serif);
   }
-  .hero::before {
-    content: ""; position: absolute; inset: 10px;
-    border: 1px solid rgba(201, 169, 110, 0.35); border-radius: 20px;
-    pointer-events: none;
+  .sign h1 {
+    font-family: var(--script);
+    font-size: 160pt; margin: 0; line-height: 1;
+    color: var(--rose-gold-dark); font-weight: 400;
   }
-  .hero::after {
-    content: "❦"; position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
-    color: var(--gold); font-size: 18px; background: var(--warm-white); padding: 0 10px;
-  }
-  .kicker {
-    font-family: var(--serif); font-style: italic; font-size: 17px;
-    color: var(--text-soft); margin: 8px 0 6px; letter-spacing: .4px;
-  }
-  .names {
-    font-family: var(--serif); font-size: clamp(46px, 13vw, 72px);
-    line-height: 1; margin: 4px 0 0; color: var(--rose-gold);
-    font-weight: 600; letter-spacing: 2px;
-  }
-  .names .amp {
-    color: var(--gold); font-style: italic; font-weight: 400; font-size: .75em;
-    display: inline-block; transform: translateY(-4px); margin: 0 2px;
-  }
-  .ornament {
-    display: flex; align-items: center; justify-content: center;
-    gap: 10px; margin: 18px auto 22px;
-  }
-  .ornament .line { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
-  .ornament .line.rev { background: linear-gradient(90deg, var(--gold), transparent); }
-  .ornament .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rose-gold); }
-
-  .details { display: grid; gap: 18px; margin-top: 4px; }
-  .detail-block .label {
-    font-family: var(--sans); font-size: 11px; letter-spacing: 2.5px;
-    text-transform: uppercase; color: var(--gold); margin: 0 0 4px;
-  }
-  .detail-block .value {
-    font-family: var(--serif); font-size: 22px; font-weight: 600;
-    color: var(--text); margin: 0; line-height: 1.35;
-  }
-  .detail-block .sub { font-size: 14px; color: var(--text-soft); margin: 3px 0 0; }
-
-  /* ============ GALLERY ============ */
-  .section-title {
-    font-family: var(--serif); font-size: 30px; color: var(--rose-gold);
-    text-align: center; margin: 0 0 4px; font-weight: 600; letter-spacing: 1px;
-  }
-  .section-sub {
-    text-align: center; font-size: 14px; color: var(--text-soft);
-    margin: 0 0 22px; font-family: var(--sans); font-weight: 300;
-  }
-  .gallery-section {
-    max-width: 620px; margin: 0 auto 28px;
-    animation: fadeUp .9s .1s ease both;
-  }
-  .main-frame {
-    position: relative; width: 100%; aspect-ratio: 4 / 5;
-    border-radius: var(--radius); overflow: hidden;
-    background: linear-gradient(135deg, var(--blush) 0%, var(--champagne) 100%);
-    border: 3px solid var(--warm-white);
-    box-shadow: 0 0 0 1px var(--gold-light), 0 20px 45px -18px var(--shadow-strong);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .main-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .main-frame .placeholder {
-    text-align: center; color: var(--rose-gold-dark); padding: 30px;
-    font-family: var(--serif); font-size: 20px; font-style: italic;
-  }
-  .main-frame .placeholder .icon { font-size: 44px; display: block; margin-bottom: 12px; opacity: .7; }
-
-  .gallery-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 10px; margin-top: 14px;
-  }
-  .thumb {
-    aspect-ratio: 1; border-radius: 14px; overflow: hidden;
-    background: var(--cream); border: 2px solid var(--warm-white);
-    box-shadow: 0 4px 14px -6px var(--shadow);
-    cursor: pointer; position: relative;
-    transition: transform .3s ease, box-shadow .3s ease;
-  }
-  .thumb:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 22px -8px var(--shadow-strong); }
-  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .thumb .empty {
-    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-    color: var(--gold); font-size: 26px; opacity: .5;
-  }
-  .thumb .badge {
-    position: absolute; top: 6px; right: 6px;
-    background: var(--rose-gold); color: #fff; border-radius: 50%;
-    width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center;
-  }
-
-  /* ============ UPLOAD TOOLBAR ============ */
-  .photo-toolbar {
-    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
-    margin-top: 16px;
-  }
-  .photo-toolbar .btn { font-size: 12px; padding: 7px 14px; }
-
-  /* ============ GENERAL BUTTONS ============ */
-  .btn {
-    font-family: var(--sans); font-size: 13px; font-weight: 500;
-    letter-spacing: .3px; cursor: pointer;
-    background: var(--warm-white); color: var(--rose-gold);
-    border: 1px solid var(--rose-gold); border-radius: 999px;
-    padding: 9px 18px; transition: all .25s ease;
-    display: inline-flex; align-items: center; gap: 6px;
-    text-decoration: none;
-  }
-  .btn:hover { background: var(--rose-gold); color: #fff; box-shadow: 0 4px 14px -4px var(--shadow-strong); }
-  .btn.primary { background: var(--rose-gold); color: #fff; }
-  .btn.primary:hover { background: var(--rose-gold-dark); }
-  .btn.ghost { border-color: var(--gold); color: var(--gold); }
-  .btn.ghost:hover { background: var(--gold); color: #fff; }
-  .btn.danger { border-color: #c0392b; color: #c0392b; }
-  .btn.danger:hover { background: #c0392b; color: #fff; }
-  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-  .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-
-  /* ============ QR CARD ============ */
-  .qr-card {
-    max-width: 620px; margin: 0 auto 28px;
-    background: var(--warm-white); border: 1px solid var(--gold-light);
-    border-radius: var(--radius); padding: 28px 24px;
-    text-align: center; box-shadow: 0 12px 32px -16px var(--shadow-strong);
-  }
-  .qr-card img { width: 150px; height: 150px; image-rendering: pixelated; margin: 0 auto; display: block; }
-  .qr-note { font-size: 12px; color: var(--text-soft); margin: 10px 0 14px; }
-
-  /* ============ URL CONFIG ============ */
-  .url-config {
-    margin-top: 18px; padding: 14px; background: var(--cream);
-    border: 1px solid var(--gold-light); border-radius: 14px; text-align: left;
-  }
-  .url-warn { margin: 0 0 10px; padding: 9px 12px; font-size: 12px; line-height: 1.55; border-radius: 8px; border-left: 3px solid #e0a800; background: #fdf4d7; color: #7a5f00; word-break: break-all; }
-  .url-warn.ok { border-left-color: var(--rose-gold); background: #fceff0; color: var(--rose-gold-dark); }
-  .url-label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
-  .url-row { display: flex; gap: 6px; }
-  .url-row input { flex: 1; min-width: 0; font: inherit; font-size: 12px; padding: 8px 10px; border: 1px solid var(--gold-light); border-radius: 8px; background: var(--warm-white); color: var(--text); }
-  .url-row input:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
-
-  /* ============ WISHES ============ */
-  .wishes-section {
-    max-width: 620px; margin: 0 auto 40px;
-    background: var(--warm-white); border: 1px solid var(--gold-light);
-    border-radius: var(--radius); padding: 30px 24px;
-    box-shadow: 0 12px 32px -16px var(--shadow-strong);
-    animation: fadeUp 1s .2s ease both;
-  }
-  .wish-form { display: flex; flex-direction: column; gap: 10px; }
-  .wish-form input[type=text], .wish-form textarea {
-    font: inherit; font-size: 14px; color: var(--text);
-    background: var(--ivory); border: 1px solid var(--gold-light); border-radius: 12px;
-    padding: 11px 14px; width: 100%; transition: border-color .2s;
-  }
-  .wish-form input:focus, .wish-form textarea:focus { outline: none; border-color: var(--rose-gold); }
-  .wish-form textarea { resize: vertical; min-height: 80px; }
-  .wish-form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
-  .wish-form button[type=submit] { align-self: center; margin-top: 4px; }
-  .wa-row { text-align: center; margin: 10px 0 0; }
-  .wa-btn { border-color: #25D366; color: #1faa50; }
-  .wa-btn:hover { background: #25D366; color: #fff; }
-  .wish-status { min-height: 1.2em; text-align: center; font-size: 12px; margin: 8px 0 0; color: var(--text-soft); }
-  .wish-status.ok { color: #1f8a4c; font-weight: 600; }
-  .wish-status.err { color: #b3261e; font-weight: 600; }
-  .wish-list { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-direction: column; gap: 10px; max-height: 420px; overflow-y: auto; }
-  .wish-item { background: var(--ivory); border: 1px solid var(--blush); border-radius: 14px; padding: 12px 14px; }
-  .wish-name { font-weight: 600; color: var(--rose-gold-dark); margin: 0 0 3px; font-size: 14px; }
-  .wish-msg { margin: 0; color: var(--text); font-size: 14px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
-  .wish-time { margin: 5px 0 0; font-size: 11px; color: var(--text-soft); }
-  .wish-empty { text-align: center; color: var(--text-soft); font-size: 13px; padding: 14px 0; }
-
-  /* ============ TOAST ============ */
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%);
-    background: var(--rose-gold-dark); color: #fff; padding: 12px 22px;
-    border-radius: 999px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.2);
-    transition: transform .35s cubic-bezier(.2,.8,.2,1); z-index: 9999;
-    max-width: 90vw; text-align: center;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.error { background: #b3261e; }
-
-  /* ============ ANIMATIONS ============ */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .hidden { display: none !important; }
-
-  /* ============ PRINT SIGNBOARD ============ */
-  .sign { display: none; }
-  @media print {
-    @page { size: 24in 36in; margin: 0; }
-    body { background: #fff; padding: 0; }
-    .topbar, .hero, .gallery-section, .qr-card, .wishes-section, .url-config { display: none !important; }
-    .sign {
-      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-      width: 24in; height: 36in; background: var(--ivory); color: var(--rose-gold);
-      border: 0.6in solid var(--gold); padding: 2.2in 1.5in 2in; text-align: center;
-      font-family: var(--serif);
-    }
-    .sign h1 { font-size: 150pt; margin: 0; line-height: 1; color: var(--rose-gold-dark); font-weight: 600; }
-    .sign h1 .amp { color: var(--gold); font-style: italic; font-weight: 400; }
-    .sign .sub { font-size: 40pt; margin: 0; color: var(--text); font-family: var(--am); }
-    .sign .info { font-size: 48pt; line-height: 1.5; color: var(--text); }
-    .sign .qr-print { width: 5in; height: 5in; background: #fff; padding: 0.25in; }
-    .sign .qr-print img { width: 100%; height: 100%; }
-    .sign .qr-caption { font-size: 36pt; color: var(--text); margin-top: 0.3in; font-family: var(--am); }
-  }
+  .sign h1 .amp { color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 0.5em; }
+  .sign .sub { font-size: 40pt; margin: 0; color: var(--text); font-family: var(--am); }
+  .sign .info { font-size: 46pt; line-height: 1.5; color: var(--text); }
+  .sign .qr-print { width: 5in; height: 5in; background: #fff; padding: 0.25in; }
+  .sign .qr-print img { width: 100%; height: 100%; }
+  .sign .qr-caption { font-size: 34pt; color: var(--text); margin-top: 0.3in; font-family: var(--am); }
+}
 </style>
 </head>
 <body>
 
-<!-- ================= TOP BAR ================= -->
+<!-- ============ TOP BAR ============ -->
 <header class="topbar">
-  <div class="monogram">E &amp; Y</div>
+  <div class="monogram">E<span class="amp-small">&amp;</span>Y</div>
   <div class="lang-switch" role="group" aria-label="Language">
-    <button type="button" id="btn-en" aria-pressed="false">English</button>
-    <button type="button" id="btn-am" aria-pressed="true">አማርኛ</button>
+    <button type="button" id="btn-en" aria-pressed="false">EN</button>
+    <button type="button" id="btn-am" aria-pressed="true">አማ</button>
   </div>
 </header>
 
-<!-- ================= HERO ================= -->
-<main class="hero" id="card">
-  <p class="kicker" data-en="Together with our families, we joyfully invite you"
-     data-am="ከቤተሰቦቻችን ጋር በደስታ ይጋብዙን">ከቤተሰቦቻችን ጋር በደስታ ይጋብዙን</p>
-  <h1 class="names">EDOM <span class="amp">&amp;</span> Yohi</h1>
-  <div class="ornament">
-    <span class="line"></span><span class="dot"></span><span class="line rev"></span>
-  </div>
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <!-- floral corner SVGs -->
+  <svg class="floral-deco tl" viewBox="0 0 120 120" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+      <path d="M10 70 Q 30 40, 70 30"/>
+      <path d="M10 45 Q 25 25, 55 20"/>
+      <path d="M30 10 Q 35 30, 65 35"/>
+      <path d="M25 90 Q 45 75, 55 50"/>
+      <circle cx="70" cy="30" r="3.5" fill="currentColor" stroke="none"/>
+      <circle cx="55" cy="20" r="2.5" fill="currentColor" stroke="none"/>
+      <ellipse cx="50" cy="55" rx="4" ry="8" transform="rotate(40 50 55)" fill="currentColor" stroke="none" opacity="0.4"/>
+      <ellipse cx="30" cy="70" rx="3" ry="6" transform="rotate(30 30 70)" fill="currentColor" stroke="none" opacity="0.4"/>
+    </g>
+  </svg>
+  <svg class="floral-deco tr" viewBox="0 0 120 120" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+      <path d="M10 70 Q 30 40, 70 30"/>
+      <path d="M10 45 Q 25 25, 55 20"/>
+      <path d="M30 10 Q 35 30, 65 35"/>
+      <path d="M25 90 Q 45 75, 55 50"/>
+      <circle cx="70" cy="30" r="3.5" fill="currentColor" stroke="none"/>
+      <circle cx="55" cy="20" r="2.5" fill="currentColor" stroke="none"/>
+      <ellipse cx="50" cy="55" rx="4" ry="8" transform="rotate(40 50 55)" fill="currentColor" stroke="none" opacity="0.4"/>
+    </g>
+  </svg>
+  <svg class="floral-deco bl" viewBox="0 0 120 120" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+      <path d="M10 70 Q 30 40, 70 30"/>
+      <path d="M10 45 Q 25 25, 55 20"/>
+      <circle cx="70" cy="30" r="3" fill="currentColor" stroke="none"/>
+    </g>
+  </svg>
+  <svg class="floral-deco br" viewBox="0 0 120 120" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+      <path d="M10 70 Q 30 40, 70 30"/>
+      <path d="M10 45 Q 25 25, 55 20"/>
+      <circle cx="70" cy="30" r="3" fill="currentColor" stroke="none"/>
+    </g>
+  </svg>
 
-  <div class="details">
-    <div class="detail-block">
-      <p class="label" data-en="The Date" data-am="ቀን">ቀን</p>
-      <p class="value" data-en="28 Ginbot 2029" data-am="28 ግንቦት 2029">28 ግንቦት 2029</p>
-      <p class="sub" data-en="Monday" data-am="ሰኞ">ሰኞ</p>
+  <div class="hero-content">
+    <p class="hero-kicker" data-en="The Wedding Celebration Of" data-am="የሠርግ ሥነ ሥርዓት">The Wedding Celebration Of</p>
+    <h1 class="hero-names">
+      <span>Edom</span><span class="amp">&amp;</span><span>Yohi</span>
+    </h1>
+    <div class="hero-ornament">
+      <svg viewBox="0 0 240 24" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+          <path d="M20 12 Q 60 2, 110 12"/>
+          <path d="M130 12 Q 180 22, 220 12"/>
+          <ellipse cx="120" cy="12" rx="5" ry="8"/>
+          <circle cx="120" cy="12" r="1.5" fill="currentColor"/>
+        </g>
+      </svg>
     </div>
-    <div class="detail-block">
-      <p class="label" data-en="The Venue" data-am="ቦታ">ቦታ</p>
-      <p class="value" data-en="Hawassa Apostolic Church" data-am="ሀዋሳ አፖስቶሊክ ቤተ ክርስቲያን">ሀዋሳ አፖስቶሊክ ቤተ ክርስቲያን</p>
-      <p class="sub" data-en="Hawassa, Ethiopia" data-am="ሀዋሳ፣ ኢትዮጵያ">ሀዋሳ፣ ኢትዮጵያ</p>
+    <p class="hero-date" data-en="May 28, 2029" data-am="28 ግንቦት 2029">28 ግንቦት 2029</p>
+    <p class="hero-location" data-en="Hawassa Apostolic Church · Hawassa, Ethiopia"
+       data-am="ሀዋሳ አፖስቶሊክ ቤተ ክርስቲያን · ሀዋሳ፣ ኢትዮጵያ">ሀዋሳ አፖስቶሊክ ቤተ ክርስቲያን · ሀዋሳ፣ ኢትዮጵያ</p>
+  </div>
+  <div class="hero-scroll" data-en="Scroll" data-am="ወደታች">Scroll</div>
+</section>
+
+<!-- ============ INVITATION ============ -->
+<section class="section invitation reveal">
+  <p class="section-kicker" data-en="With Joy In Our Hearts" data-am="በደስታ ልብ">With Joy In Our Hearts</p>
+  <h2 class="section-title" data-en="We Invite You" data-am="ይጋብዙን">We Invite You</h2>
+  <svg class="flourish" viewBox="0 0 180 22" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+      <path d="M10 11 Q 50 2, 80 11"/>
+      <path d="M100 11 Q 130 20, 170 11"/>
+      <circle cx="90" cy="11" r="2" fill="currentColor" stroke="none"/>
+      <ellipse cx="90" cy="11" rx="6" ry="9"/>
+    </g>
+  </svg>
+  <p class="invitation-text"
+     data-en="Together with our families, we joyfully invite you to share in the celebration of our wedding. Your presence would mean the world to us as we begin this beautiful journey together."
+     data-am="ከቤተሰቦቻችን ጋር በመሆን፣ በደስታ በሚሞላው የሠርግ ሥነ ሥርዓታችን ላይ እንዲገኙ በአክብሮት እንጋብዛለን። አዲሱን የጋራ ሕይወታችንን ስንጀምር መገኘትዎ ለእኛ ትልቅ ትርጉም አለው።">
+    Together with our families, we joyfully invite you to share in the celebration of our wedding. Your presence would mean the world to us as we begin this beautiful journey together.
+  </p>
+</section>
+
+<!-- ============ COUNTDOWN ============ -->
+<section class="section countdown reveal">
+  <p class="section-kicker" data-en="Counting Down" data-am="ቀሪ ጊዜ">Counting Down</p>
+  <h2 class="section-title" data-en="To Forever" data-am="ወደ ዘላለም">To Forever</h2>
+  <p class="section-sub" data-en="Until we say “I do”" data-am="“እባላለሁ” እስክንል ድረስ">Until we say “I do”</p>
+
+  <div class="countdown-grid" id="countdownGrid">
+    <div class="cd-cell">
+      <span class="cd-num" id="cd-days">00</span>
+      <span class="cd-lbl" data-en="Days" data-am="ቀናት">Days</span>
+    </div>
+    <div class="cd-cell">
+      <span class="cd-num" id="cd-hours">00</span>
+      <span class="cd-lbl" data-en="Hours" data-am="ሰዓቶች">Hours</span>
+    </div>
+    <div class="cd-cell">
+      <span class="cd-num" id="cd-mins">00</span>
+      <span class="cd-lbl" data-en="Minutes" data-am="ደቂቃዎች">Minutes</span>
+    </div>
+    <div class="cd-cell">
+      <span class="cd-num" id="cd-secs">00</span>
+      <span class="cd-lbl" data-en="Seconds" data-am="ሰከንዶች">Seconds</span>
     </div>
   </div>
-</main>
+</section>
 
-<!-- ================= GALLERY ================= -->
-<section class="gallery-section" id="gallerySection">
-  <h2 class="section-title" data-en="Our Gallery" data-am="የፎቶ ማህደር">የፎቶ ማህደር</h2>
-  <p class="section-sub" data-en="A glimpse of our journey together"
-     data-am="የጋራ ጉዞአችን ትንሽ እይታ">የጋራ ጉዞአችን ትንሽ እይታ</p>
+<!-- ============ DETAILS ============ -->
+<section class="section details reveal">
+  <p class="section-kicker" data-en="The Celebration" data-am="ሥነ ሥርዓቱ">The Celebration</p>
+  <h2 class="section-title" data-en="When &amp; Where" data-am="መቼ እና የት">When &amp; Where</h2>
+  <svg class="flourish" viewBox="0 0 180 22" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+      <path d="M10 11 Q 50 2, 80 11"/>
+      <path d="M100 11 Q 130 20, 170 11"/>
+      <circle cx="90" cy="11" r="2" fill="currentColor" stroke="none"/>
+    </g>
+  </svg>
+
+  <div class="detail-grid">
+    <div class="detail-card">
+      <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+        <rect x="3" y="5" width="18" height="16" rx="2"/>
+        <path d="M3 10h18M8 3v4M16 3v4"/>
+        <circle cx="12" cy="15" r="1.6" fill="currentColor" stroke="none"/>
+      </svg>
+      <h3 data-en="When" data-am="ቀን">When</h3>
+      <p class="detail-value" data-en="Monday, May 28, 2029" data-am="ሰኞ፣ 28 ግንቦት 2029">Monday, May 28, 2029</p>
+      <p class="detail-sub" data-en="Ceremony at 10:00 AM" data-am="ሥነ ሥርዓት ከጠዋቱ 10:00">Ceremony at 10:00 AM</p>
+    </div>
+
+    <div class="detail-card">
+      <svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+        <path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/>
+        <circle cx="12" cy="9" r="2.5"/>
+      </svg>
+      <h3 data-en="Where" data-am="ቦታ">Where</h3>
+      <p class="detail-value" data-en="Hawassa Apostolic Church" data-am="ሀዋሳ አፖስቶሊክ ቤተ ክርስቲያን">Hawassa Apostolic Church</p>
+      <p class="detail-sub" data-en="Hawassa, Ethiopia" data-am="ሀዋሳ፣ ኢትዮጵያ">Hawassa, Ethiopia</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section class="section gallery reveal" id="gallerySection">
+  <p class="section-kicker" data-en="Our Moments" data-am="ትዝታዎቻችን">Our Moments</p>
+  <h2 class="section-title" data-en="Our Gallery" data-am="የፎቶ ማህደር">Our Gallery</h2>
+  <p class="section-sub" data-en="A glimpse of our journey together" data-am="የጋራ ጉዞአችን ትንሽ እይታ">A glimpse of our journey together</p>
 
   <div class="main-frame" id="mainFrame">
-    <div class="placeholder" id="mainPlaceholder">
-      <span class="icon">📷</span>
-      <span data-en="Add your main couple photo" data-am="ዋናውን የጥንዶች ፎቶ ያክሉ">ዋናውን የጥንዶች ፎቶ ያክሉ</span>
-    </div>
     <img id="mainPhoto" class="hidden" alt="Edom and Yohi">
+    <div class="placeholder" id="mainPlaceholder">
+      <svg class="cam-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+        <rect x="3" y="6" width="18" height="14" rx="2"/>
+        <path d="M8 6V4h8v2"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+      <span data-en="Add your couple photo" data-am="የጥንዶች ፎቶ ያክሉ">Add your couple photo</span>
+    </div>
   </div>
 
-  <div class="gallery-grid" id="thumbGrid">
-    <!-- thumbnails are injected by JS -->
-  </div>
+  <div class="thumb-grid" id="thumbGrid"></div>
 
-  <div class="photo-toolbar">
+  <div class="upload-controls">
     <button type="button" class="btn primary" id="uploadBtn">
-      <span data-en="Upload Photo" data-am="ፎቶ ጫን">ፎቶ ጫን</span>
+      <span data-en="Upload Photo" data-am="ፎቶ ጫን">Upload Photo</span>
     </button>
     <button type="button" class="btn ghost" id="replaceBtn" disabled>
-      <span data-en="Replace Main" data-am="ዋናውን ቀይር">ዋናውን ቀይር</span>
+      <span data-en="Replace Main" data-am="ዋናውን ቀይር">Replace Main</span>
     </button>
     <button type="button" class="btn danger" id="deleteMainBtn" disabled>
-      <span data-en="Delete Main" data-am="ዋናውን አጥፋ">ዋናውን አጥፋ</span>
+      <span data-en="Delete Main" data-am="ዋናውን አጥፋ">Delete Main</span>
     </button>
     <input type="file" id="photoInput" accept="image/*" class="hidden" multiple>
   </div>
 </section>
 
-<!-- ================= QR CARD ================= -->
-<section class="qr-card">
-  <div id="qrBox"></div>
-  <p class="qr-note" data-en="Scan to view the invitation and leave your wish"
-     data-am="ግብዣውን ለማየት እና ምኞትዎን ለመግለጽ ስካን ያድርጉ">ግብዣውን ለማየት እና ምኞትዎን ለመግለጽ ስካን ያድርጉ</p>
-  <div class="photo-toolbar">
-    <button type="button" class="btn" id="downloadQr" data-en="Download QR (PNG)" data-am="QR አውርድ (PNG)">QR አውርድ (PNG)</button>
-    <button type="button" class="btn primary" id="printBtn" data-en="Print signboard (24×36 in)" data-am="ሰሌዳ አትም (24×36 ኢንች)">ሰሌዳ አትም (24×36 ኢንች)</button>
-  </div>
-
-  <!-- URL config for QR -->
-  <div class="url-config" id="urlConfig">
-    <p class="url-warn" id="urlWarn"></p>
-    <label class="url-label" for="publicUrl"
-           data-en="Public address of this page (the QR will open it)"
-           data-am="የዚህ ገጽ የሕዝብ አድራሻ (QR ይህን ይከፍታል)">የዚህ ገጽ የሕዝብ አድራሻ (QR ይህን ይከፍታል)</label>
-    <div class="url-row">
-      <input type="url" id="publicUrl" inputmode="url" autocomplete="url" placeholder="https://edom-yohi.netlify.app">
-      <button type="button" class="btn primary" id="saveUrl" data-en="Save" data-am="አስቀምጥ">አስቀምጥ</button>
-    </div>
-  </div>
-</section>
-
-<!-- ================= WISHES ================= -->
-<section class="wishes-section" aria-labelledby="wishesTitle">
-  <h2 class="section-title" id="wishesTitle" data-en="Wishes &amp; Blessings" data-am="ምኞቶች እና ቡራኬዎች">ምኞቶች እና ቡራኬዎች</h2>
-  <p class="section-sub" data-en="Leave a message for the couple"
-     data-am="ለጥንዶቹ መልእክት ይተዉ">ለጥንዶቹ መልእክት ይተዉ</p>
+<!-- ============ WISHES ============ -->
+<section class="section wishes reveal">
+  <p class="section-kicker" data-en="With Love" data-am="በፍቅር">With Love</p>
+  <h2 class="section-title" data-en="Wishes &amp; Blessings" data-am="ምኞቶች እና ቡራኬዎች">Wishes &amp; Blessings</h2>
+  <p class="section-sub" data-en="Leave a message for the couple" data-am="ለጥንዶቹ መልእክት ይተዉ">Leave a message for the couple</p>
 
   <form id="wishForm" class="wish-form" novalidate>
-    <input type="text" id="wishName" name="name" maxlength="40" required autocomplete="name"
-           data-ph-en="Your name" data-ph-am="ስምዎ" placeholder="ስምዎ">
+    <input type="text" id="wishName" name="name" maxlength="40" required
+           autocomplete="name"
+           data-ph-en="Your name" data-ph-am="ስምዎ" placeholder="Your name">
     <textarea id="wishMsg" name="message" maxlength="280" rows="3" required
-              data-ph-en="Your wish…" data-ph-am="ምኞትዎ…" placeholder="ምኞትዎ…"></textarea>
+              data-ph-en="Share your wish…" data-ph-am="ምኞትዎን ያካፍሉ…" placeholder="Share your wish…"></textarea>
     <input type="text" id="wishTrap" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-    <button type="submit" class="btn primary" data-en="Send wish" data-am="ምኞት ላክ">ምኞት ላክ</button>
+    <button type="submit" class="btn primary"
+            data-en="Send Wish" data-am="ምኞት ላክ">Send Wish</button>
   </form>
 
   <p class="wa-row">
     <a id="waBtn" class="btn wa-btn hidden" target="_blank" rel="noopener"
-       data-en="Send on WhatsApp" data-am="በWhatsApp ላክ">በWhatsApp ላክ</a>
+       data-en="Send on WhatsApp" data-am="በWhatsApp ላክ">Send on WhatsApp</a>
   </p>
 
   <div id="wishStatus" class="wish-status" role="status" aria-live="polite"></div>
   <ul id="wishList" class="wish-list" aria-live="polite"></ul>
 </section>
 
-<!-- ================= TOAST ================= -->
+<!-- ============ QR SECTION ============ -->
+<section class="section qr-section reveal">
+  <p class="section-kicker" data-en="Share the Joy" data-am="ደስታውን ያጋሩ">Share the Joy</p>
+  <h2 class="section-title" data-en="Invitation QR" data-am="የግብዣ QR">Invitation QR</h2>
+  <p class="section-sub" data-en="Scan to view on your phone" data-am="በስልክዎ ለማየት ስካን ያድርጉ">Scan to view on your phone</p>
+
+  <div class="qr-card">
+    <div id="qrBox"></div>
+    <p class="qr-note" data-en="Scan to view the invitation and leave your wish"
+       data-am="ግብዣውን ለማየት እና ምኞትዎን ለመግለጽ ስካን ያድርጉ">Scan to view the invitation and leave your wish</p>
+    <div class="qr-actions">
+      <button type="button" class="btn" id="downloadQr"
+              data-en="Download QR" data-am="QR አውርድ">Download QR</button>
+      <button type="button" class="btn primary" id="printBtn"
+              data-en="Print Signboard" data-am="ሰሌዳ አትም">Print Signboard</button>
+    </div>
+
+    <details class="url-config">
+      <summary data-en="Configure public URL" data-am="የሕዝብ URL ያዘጋጁ">Configure public URL</summary>
+      <div class="url-config-inner">
+        <p class="url-warn" id="urlWarn"></p>
+        <label class="url-label" for="publicUrl"
+               data-en="Public address of this page"
+               data-am="የዚህ ገጽ የሕዝብ አድራሻ">Public address of this page</label>
+        <div class="url-row">
+          <input type="url" id="publicUrl" inputmode="url" autocomplete="url" placeholder="https://edom-yohi.netlify.app">
+          <button type="button" class="btn primary" id="saveUrl"
+                  data-en="Save" data-am="አስቀምጥ">Save</button>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <p class="footer-names">Edom<span class="amp">&amp;</span>Yohi</p>
+  <p class="footer-tag" data-en="With love, we can't wait to celebrate with you"
+     data-am="በፍቅር፣ ከእናንተ ጋር ለመደሰት እንጓጓለን">With love, we can't wait to celebrate with you</p>
+</footer>
+
+<!-- ============ TOAST ============ -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- ================= PRINT SIGNBOARD ================= -->
+<!-- ============ PRINT SIGNBOARD ============ -->
 <section class="sign" aria-hidden="true">
   <div>
     <p class="sub">ደስታችንን ይጋብዙን</p>
-    <h1>EDOM <span class="amp">&amp;</span> Yohi</h1>
+    <h1>Edom <span class="amp">&amp;</span> Yohi</h1>
   </div>
   <div class="info">
     28 ግንቦት 2029<br>
@@ -430,24 +1011,26 @@
 
 <script>
 /* ============================================================
-   ⚙️ CONFIGURATION — EDIT THIS BLOCK
+   ⚙️ CONFIG — fill these in to enable public photo uploads
    ------------------------------------------------------------
-   1. Create a free account at https://cloudinary.com
-   2. Dashboard → Settings → Upload → Add upload preset
-      • Signing mode: Unsigned
-      • Folder: edom-yohi-wedding
-   3. Paste your Cloud name and preset name below.
+   How to get these (2 minutes, free, no credit card):
+   1) Sign up at https://cloudinary.com
+   2) Dashboard → Settings → Upload → Add upload preset
+   3) Signing mode: UNSIGNED
+   4) Copy your Cloud name and the preset name below
    ============================================================ */
 const CLOUDINARY = {
-  cloudName: "YOUR_CLOUD_NAME",        // e.g. "dxxxxx"
+  cloudName: "YOUR_CLOUD_NAME",        // e.g. "dxxxxxxxx"
   uploadPreset: "YOUR_UNSIGNED_PRESET", // e.g. "edom_yohi_unsigned"
   folder: "edom-yohi-wedding"
 };
 
 const WISHES_CONFIG = {
-  endpoint: "",   // optional Firebase RTDB URL
+  endpoint: "",   // optional Firebase RTDB URL ending with /wishes
   whatsapp: ""    // optional e.g. "251912345678"
 };
+
+const WEDDING_DATE_ISO = "2029-05-28T10:00:00+03:00"; // May 28, 2029, 10 AM EAT
 
 /* ============================================================
    CONSTANTS & STATE
@@ -455,7 +1038,7 @@ const WISHES_CONFIG = {
 const DB_NAME = "EdomYohiWedding";
 const DB_VERSION = 1;
 const STORE = "photos";
-const MAIN_KEY = "main";
+const HERO_KEY = "hero";
 const LANG_KEY = "invite-lang";
 const URL_KEY = "invite-public-url";
 
@@ -464,10 +1047,11 @@ let currentLang = "am";
 let qrDataUrl = "";
 let wishesCache = [];
 let currentStatusKey = "";
-let galleryPhotos = []; // array of { id, url, publicId, isMain }
+let galleryPhotos = []; // [{ id, url, publicId, isHero }]
+let countdownTimer = null;
 
 /* ============================================================
-   INDEXEDDB HELPERS (local cache + fallback)
+   INDEXEDDB
    ============================================================ */
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -523,22 +1107,40 @@ async function loadGallery() {
       id: r.id,
       url: r.url,
       publicId: r.publicId || null,
-      isMain: r.id === MAIN_KEY
+      isHero: r.id === HERO_KEY
     }));
-    galleryPhotos.sort((a, b) => (a.isMain ? -1 : b.isMain ? 1 : 0));
+    // Hero first, then the rest by id descending
+    galleryPhotos.sort((a, b) => {
+      if (a.isHero) return -1;
+      if (b.isHero) return 1;
+      return (b.id || "").localeCompare(a.id || "");
+    });
+    renderHeroPhoto();
     renderGallery();
   } catch (e) {
     console.warn("Could not load gallery from IndexedDB", e);
   }
 }
 
+function renderHeroPhoto() {
+  const hero = galleryPhotos.find(p => p.isHero);
+  const heroSection = document.getElementById("hero");
+  if (hero) {
+    heroSection.style.setProperty("--hero-image", `url("${hero.url}")`);
+    heroSection.classList.add("has-photo");
+  } else {
+    heroSection.style.removeProperty("--hero-image");
+    heroSection.classList.remove("has-photo");
+  }
+}
+
 function renderGallery() {
   const mainImg = document.getElementById("mainPhoto");
   const placeholder = document.getElementById("mainPlaceholder");
-  const mainEntry = galleryPhotos.find(p => p.isMain);
+  const hero = galleryPhotos.find(p => p.isHero);
 
-  if (mainEntry) {
-    mainImg.src = mainEntry.url;
+  if (hero) {
+    mainImg.src = hero.url;
     mainImg.classList.remove("hidden");
     placeholder.classList.add("hidden");
     document.getElementById("replaceBtn").disabled = false;
@@ -553,70 +1155,101 @@ function renderGallery() {
 
   const grid = document.getElementById("thumbGrid");
   grid.innerHTML = "";
-  const extras = galleryPhotos.filter(p => !p.isMain);
+  const extras = galleryPhotos.filter(p => !p.isHero);
+  const SLOTS = 6;
 
-  // Show up to 6 slots
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < SLOTS; i++) {
     const div = document.createElement("div");
     div.className = "thumb";
     const photo = extras[i];
+
     if (photo) {
       const img = document.createElement("img");
       img.src = photo.url;
-      img.alt = "Wedding photo " + (i + 1);
+      img.alt = "Wedding photo";
+      img.loading = "lazy";
       div.appendChild(img);
-      div.addEventListener("click", () => setMainPhoto(photo.id));
+
+      // Small delete button
+      const del = document.createElement("button");
+      del.className = "del-thumb";
+      del.type = "button";
+      del.setAttribute("aria-label", "Delete photo");
+      del.textContent = "×";
+      del.addEventListener("click", e => {
+        e.stopPropagation();
+        deletePhoto(photo.id);
+      });
+      div.appendChild(del);
+
+      // Click to promote to hero
+      div.addEventListener("click", () => setHeroPhoto(photo.id));
     } else {
-      div.innerHTML = '<div class="empty">＋</div>';
+      div.innerHTML = '<div class="empty">+</div>';
       div.addEventListener("click", () => document.getElementById("photoInput").click());
     }
     grid.appendChild(div);
   }
 }
 
-async function setMainPhoto(id) {
+async function setHeroPhoto(id) {
   const target = galleryPhotos.find(p => p.id === id);
   if (!target) return;
 
-  // Demote current main to a normal thumbnail
-  const currentMain = galleryPhotos.find(p => p.isMain);
-  if (currentMain) {
-    await dbPut({ id: currentMain.id, url: currentMain.url, publicId: currentMain.publicId });
+  // Demote existing hero
+  const currentHero = galleryPhotos.find(p => p.isHero);
+  if (currentHero && currentHero.id === HERO_KEY) {
+    await dbDelete(HERO_KEY);
+    // Create a gallery record for the old hero
+    await dbPut({
+      id: "photo_" + Date.now(),
+      url: currentHero.url,
+      publicId: currentHero.publicId
+    });
   }
 
   // Promote target
-  await dbPut({ id: MAIN_KEY, url: target.url, publicId: target.publicId });
-
-  // Remove old target entry (now duplicated as main)
-  if (target.id !== MAIN_KEY) {
-    await dbDelete(target.id);
-  }
+  await dbPut({ id: HERO_KEY, url: target.url, publicId: target.publicId });
+  if (target.id !== HERO_KEY) await dbDelete(target.id);
 
   await loadGallery();
   showToast(currentLang === "am" ? "ዋና ፎቶ ተቀይሯል" : "Main photo updated");
 }
 
-async function uploadPhoto(file) {
+async function deletePhoto(id) {
+  if (!confirm(currentLang === "am" ? "ይህን ፎቶ ማጥፋት ይፈልጋሉ?" : "Delete this photo?")) return;
+  await dbDelete(id);
+  await loadGallery();
+  showToast(currentLang === "am" ? "ፎቶ ጠፍቷል" : "Photo deleted");
+}
+
+async function uploadPhoto(file, asHero) {
   if (!file || !file.type.startsWith("image/")) {
     showToast(currentLang === "am" ? "እባክዎ የምስል ፋይል ይምረጡ" : "Please select an image file", true);
-    return;
+    return false;
   }
   if (file.size > 8 * 1024 * 1024) {
     showToast(currentLang === "am" ? "ፋይሉ ከ8MB መብለጥ የለበትም" : "File must be smaller than 8 MB", true);
-    return;
+    return false;
   }
 
-  const uploadBtn = document.getElementById("uploadBtn");
-  uploadBtn.disabled = true;
+  const tempId = (asHero ? HERO_KEY : "photo_" + Date.now());
 
   try {
-    // 1) Show instant local preview via IndexedDB
+    // Instant local preview (works offline, no Cloudinary needed)
     const localUrl = await fileToDataURL(file);
-    const tempId = "photo_" + Date.now();
     await dbPut({ id: tempId, url: localUrl, publicId: null });
     await loadGallery();
 
-    // 2) Upload to Cloudinary for public persistence
+    // Skip Cloudinary if not configured
+    if (!CLOUDINARY.cloudName || CLOUDINARY.cloudName === "YOUR_CLOUD_NAME") {
+      showToast(currentLang === "am"
+        ? "ፎቶ በዚህ መሣሪያ ተቀምጧል (Cloudinary አልተዋቀረም)"
+        : "Photo saved locally (Cloudinary not configured)", true);
+      return true;
+    }
+
+    // Upload to Cloudinary for public persistence
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", CLOUDINARY.uploadPreset);
@@ -626,13 +1259,14 @@ async function uploadPhoto(file) {
       `https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/image/upload`,
       { method: "POST", body: formData }
     );
+
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error?.message || "Upload failed (" + res.status + ")");
     }
     const data = await res.json();
 
-    // 3) Replace local preview with the permanent CDN URL
+    // Replace local preview with the permanent CDN URL
     await dbDelete(tempId);
     await dbPut({
       id: tempId,
@@ -640,18 +1274,18 @@ async function uploadPhoto(file) {
       publicId: data.public_id
     });
     await loadGallery();
-
     showToast(currentLang === "am" ? "ፎቶ በተሳካ ሁኔታ ተጭኗል" : "Photo uploaded successfully");
+    return true;
   } catch (err) {
     console.error(err);
-    const msg = err.message.includes("Upload preset not found")
+    const isConfig = /preset/i.test(err.message) || /cloud/i.test(err.message);
+    const msg = isConfig
       ? (currentLang === "am"
-          ? "Cloudinary ማዋቀር አልተጠናቀቀም። እባክዎ በኮዱ ውስጥ CLOUDINARY ክፍልን ያስተካክሉ።"
-          : "Cloudinary is not configured. Please set CLOUDINARY in the code.")
+          ? "Cloudinary ማዋቀር አልተጠናቀቀም — እባክዎ በኮዱ ውስጥ CLOUDINARY ክፍልን ያስተካክሉ።"
+          : "Cloudinary is not configured — please set CLOUDINARY in the code.")
       : (currentLang === "am" ? "ፎቶ መጫን አልተቻለም፦ " : "Upload failed: ") + err.message;
     showToast(msg, true);
-  } finally {
-    uploadBtn.disabled = false;
+    return false;
   }
 }
 
@@ -664,15 +1298,35 @@ function fileToDataURL(file) {
   });
 }
 
-async function deleteMainPhoto() {
-  const main = galleryPhotos.find(p => p.isMain);
-  if (!main) return;
-  if (!confirm(currentLang === "am" ? "ዋናውን ፎቶ ማጥፋት ይፈልጋሉ?" : "Delete the main photo?")) return;
+/* ============================================================
+   COUNTDOWN
+   ============================================================ */
+function startCountdown() {
+  const target = new Date(WEDDING_DATE_ISO).getTime();
 
-  await dbDelete(MAIN_KEY);
-  // Optionally delete from Cloudinary here (requires signed API, omitted for simplicity)
-  await loadGallery();
-  showToast(currentLang === "am" ? "ዋና ፎቶ ጠፍቷል" : "Main photo deleted");
+  function tick() {
+    const now = Date.now();
+    let diff = target - now;
+    if (diff <= 0) {
+      ["days", "hours", "mins", "secs"].forEach(k => {
+        document.getElementById("cd-" + k).textContent = "00";
+      });
+      return;
+    }
+    const sec = Math.floor(diff / 1000);
+    const days = Math.floor(sec / 86400);
+    const hours = Math.floor((sec % 86400) / 3600);
+    const mins = Math.floor((sec % 3600) / 60);
+    const secs = sec % 60;
+    document.getElementById("cd-days").textContent = String(days).padStart(2, "0");
+    document.getElementById("cd-hours").textContent = String(hours).padStart(2, "0");
+    document.getElementById("cd-mins").textContent = String(mins).padStart(2, "0");
+    document.getElementById("cd-secs").textContent = String(secs).padStart(2, "0");
+  }
+
+  tick();
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(tick, 1000);
 }
 
 /* ============================================================
@@ -720,17 +1374,17 @@ function renderUrlStatus() {
   const url = getPublicUrl();
   const warn = document.getElementById("urlWarn");
   const input = document.getElementById("publicUrl");
+  if (!warn) return;
 
   if (isLocalUrl(url)) {
     warn.className = "url-warn";
     warn.innerHTML = currentLang === "am"
-      ? "⚠️ የአሁኑ አድራሻ የአካባቢ (local) ነው። ሌሎች ሰዎች ስካን ቢያደርጉ <strong>አይከፈትልዎትም</strong>።"
-      : "⚠️ This address is local. Others who scan the QR <strong>won't be able to open it</strong>.";
+      ? "⚠️ የአሁኑ አድራሻ የአካባቢ (local) ነው። ሌሎች ሰዎች ስካን ቢያደርጉ አይከፈትልዎትም።"
+      : "⚠️ This address is local. Others who scan the QR won't be able to open it.";
   } else {
     warn.className = "url-warn ok";
-    warn.innerHTML = (currentLang === "am"
-      ? "✅ QR ወደዚህ አድራሻ ይመራል፦ "
-      : "✅ QR will open: ") + "<strong>" + escapeHtml(url) + "</strong>";
+    warn.innerHTML = (currentLang === "am" ? "✅ QR ወደዚህ አድራሻ ይመራል፦ " : "✅ QR will open: ")
+      + "<strong>" + escapeHtml(url) + "</strong>";
   }
 
   if (!input.value) {
@@ -798,7 +1452,7 @@ async function loadWishes() {
       const list = data ? Object.values(data) : [];
       return list.filter(w => w && w.name && w.message).sort((a, b) => (b.ts || 0) - (a.ts || 0));
     } catch (e) {
-      console.warn("Could not load wishes from server, using local:", e);
+      console.warn("Wishes server unreachable, using local:", e);
     }
   }
   try {
@@ -926,18 +1580,24 @@ document.getElementById("uploadBtn").addEventListener("click", () => {
 document.getElementById("replaceBtn").addEventListener("click", () => {
   document.getElementById("photoInput").click();
 });
-document.getElementById("deleteMainBtn").addEventListener("click", deleteMainPhoto);
+
+document.getElementById("deleteMainBtn").addEventListener("click", () => {
+  const hero = galleryPhotos.find(p => p.isHero);
+  if (hero) deletePhoto(hero.id);
+});
 
 document.getElementById("photoInput").addEventListener("change", async e => {
   const files = Array.from(e.target.files || []);
-  e.target.value = ""; // reset so the same file can be re-selected
+  e.target.value = "";
   if (!files.length) return;
 
-  const mainExists = galleryPhotos.some(p => p.isMain);
-  for (const file of files) {
-    await uploadPhoto(file);
-    if (!mainExists) break; // first upload becomes the main photo
+  const hasHero = galleryPhotos.some(p => p.isHero);
+  for (let i = 0; i < files.length; i++) {
+    const asHero = !hasHero && i === 0;
+    await uploadPhoto(files[i], asHero);
   }
+  // Reload to fix any race conditions with DB writes
+  await loadGallery();
 });
 
 document.getElementById("downloadQr").addEventListener("click", () => {
@@ -992,6 +1652,25 @@ document.getElementById("wishForm").addEventListener("submit", async e => {
 });
 
 /* ============================================================
+   REVEAL ON SCROLL
+   ============================================================ */
+function initReveal() {
+  if (!("IntersectionObserver" in window)) {
+    document.querySelectorAll(".reveal").forEach(el => el.classList.add("visible"));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("visible");
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+}
+
+/* ============================================================
    INIT
    ============================================================ */
 (async function init() {
@@ -999,10 +1678,12 @@ document.getElementById("wishForm").addEventListener("submit", async e => {
     await openDB();
     await loadGallery();
   } catch (e) {
-    console.warn("IndexedDB unavailable — photo persistence disabled.", e);
+    console.warn("IndexedDB unavailable — photos won't persist.", e);
   }
 
   buildQr();
+  startCountdown();
+  initReveal();
 
   let savedLang = "am";
   try { savedLang = localStorage.getItem(LANG_KEY) || "am"; } catch (e) {}
