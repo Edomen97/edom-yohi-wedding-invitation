@@ -17,6 +17,7 @@
     --paper: #FBF8EF;
     --ink: #1A237E;
     --green: #1f8a4c;
+    --red: #b3261e;
     --serif: "Playfair Display", "Noto Serif Ethiopic", Georgia, serif;
     --am: "Noto Serif Ethiopic", "Playfair Display", serif;
   }
@@ -80,7 +81,69 @@
   .btn.primary { border-color: var(--gold); }
   .btn { color: var(--navy); border-color: var(--navy); }
 
-  /* ---- Wishes section ---- */
+  /* ---- URL config ---- */
+  .url-config {
+    margin-top: 18px;
+    padding: 14px 14px 12px;
+    background: #fdf6e3;
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    text-align: left;
+  }
+  .url-warn {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.55;
+    border-radius: 8px;
+    border-left: 4px solid #f0ad4e;
+    background: #fff3cd;
+    color: #664d03;
+    word-break: break-all;
+  }
+  .url-warn.ok {
+    border-left-color: var(--green);
+    background: #e8f7ee;
+    color: #155724;
+  }
+  .url-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .url-row { display: flex; gap: 6px; }
+  .url-row input[type=url] {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    font-size: 13px;
+    color: var(--navy);
+    padding: 8px 10px;
+    border: 1px solid var(--navy);
+    border-radius: 8px;
+    background: #fff;
+  }
+  .url-row input[type=url]:focus {
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
+  }
+  .url-row .btn { padding: 8px 14px; font-size: 13px; }
+  .help-toggle {
+    background: none; border: none; padding: 0;
+    color: var(--navy); font: inherit; font-size: 13px;
+    text-decoration: underline; cursor: pointer; margin-top: 12px;
+  }
+  .help-body {
+    margin-top: 10px; font-size: 13px; line-height: 1.65; color: var(--navy);
+    padding: 10px 12px; background: #fff; border-radius: 8px; border: 1px dashed var(--navy);
+  }
+  .help-body ol { padding-left: 20px; margin: 6px 0 0; }
+  .help-body li { margin-bottom: 6px; }
+  .help-body a { color: var(--navy); font-weight: 700; }
+
+  /* ---- Wishes ---- */
   .wishes { text-align: left; }
   .wishes .section-title {
     font-family: var(--serif); font-size: 26px; color: var(--navy);
@@ -109,7 +172,7 @@
   .wa-btn:hover { background: var(--green); color: #fff; }
   .wish-status { min-height: 1.2em; text-align: center; font-size: 13px; margin: 10px 0 0; color: #555a8f; }
   .wish-status.ok { color: var(--green); font-weight: 700; }
-  .wish-status.err { color: #b3261e; font-weight: 700; }
+  .wish-status.err { color: var(--red); font-weight: 700; }
   .wish-list {
     list-style: none; padding: 0; margin: 18px 0 0;
     display: flex; flex-direction: column; gap: 10px;
@@ -126,12 +189,11 @@
 
   .hidden { display: none !important; }
 
-  /* 24 x 36 inch signboard layout */
   .sign { display: none; }
   @media print {
     @page { size: 24in 36in; margin: 0; }
     body { background: #fff; padding: 0; }
-    .toolbar, .card, .qr-note, .actions, .upload { display: none !important; }
+    .toolbar, .card, .qr-note, .actions, .upload, .url-config { display: none !important; }
     .sign {
       display: flex; flex-direction: column; align-items: center; justify-content: space-between;
       width: 24in; height: 36in; background: var(--navy); color: var(--gold);
@@ -155,7 +217,6 @@
   <button type="button" id="btn-am" aria-pressed="true">አማርኛ</button>
 </div>
 
-<!-- Invitation card -->
 <main class="card" id="card">
   <p class="kicker" data-en="With joyful hearts, we invite you" data-am="በደስታ ልብ ይጋብዙን">በደስታ ልብ ይጋብዙን</p>
   <h1 class="names">EDOM <span class="amp">&amp;</span> Yohi</h1>
@@ -183,10 +244,49 @@
       <button type="button" class="btn" id="downloadQr" data-en="Download QR (PNG)" data-am="QR አውርድ (PNG)">QR አውርድ (PNG)</button>
       <button type="button" class="btn primary" id="printBtn" data-en="Print signboard (24×36 in)" data-am="ሰሌዳ አትም (24×36 ኢንች)">ሰሌዳ አትም (24×36 ኢንች)</button>
     </div>
+
+    <!-- ⬇️ URL ማስተካከያ -->
+    <div class="url-config" id="urlConfig">
+      <p class="url-warn" id="urlWarn"></p>
+      <label class="url-label" for="publicUrl"
+             data-en="Public address of this page (the QR will open it)"
+             data-am="የዚህ ገጽ የሕዝብ አድራሻ (QR ይህን ይከፍታል)">የዚህ ገጽ የሕዝብ አድራሻ (QR ይህን ይከፍታል)</label>
+      <div class="url-row">
+        <input type="url" id="publicUrl" inputmode="url" autocomplete="url"
+               placeholder="https://edom-yohi.netlify.app">
+        <button type="button" class="btn primary" id="saveUrl"
+                data-en="Save" data-am="አስቀምጥ">አስቀምጥ</button>
+      </div>
+      <button type="button" class="help-toggle" id="helpToggle"
+              data-en="How do I make it work for others?"
+              data-am="ለሌሎች እንዲሠራ እንዴት ላድርግ?">ለሌሎች እንዲሠራ እንዴት ላድርግ?</button>
+      <div class="help-body hidden" id="helpBody">
+        <strong data-en="Fastest way (2 minutes, free):"
+                data-am="ፈጣኑ መንገድ (2 ደቂቃ፣ ነጻ)፦">ፈጣኑ መንገድ (2 ደቂቃ፣ ነጻ)፦</strong>
+        <ol>
+          <li>
+            <span data-en="Open " data-am="ክፈቱ ">ክፈቱ </span>
+            <a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a>
+            <span data-en=" — no account needed." data-am=" — አካውንት አያስፈልግም።"> — አካውንት አያስፈልግም።</span>
+          </li>
+          <li>
+            <span data-en="Drag this HTML file into the page."
+                  data-am="ይህን የHTML ፋይል ወደ ገጹ ጎትተው ይጣሉ።">ይህን የHTML ፋይል ወደ ገጹ ጎትተው ይጣሉ።</span>
+          </li>
+          <li>
+            <span data-en="Copy the link they give you (e.g. https://random-name.netlify.app) and paste it in the box above → Save."
+                  data-am="የሰጡዎትን ሊንክ (ለምሳሌ https://random-name.netlify.app) ገልብጠው ከላይ ባለው ሳጥን ውስጥ ይለጥፉ → አስቀምጥ።">የሰጡዎትን ሊንክ (ለምሳሌ https://random-name.netlify.app) ገልብጠው ከላይ ባለው ሳጥን ውስጥ ይለጥፉ → አስቀምጥ።</span>
+          </li>
+          <li>
+            <span data-en="Done — the QR now works for anyone who scans it."
+                  data-am="ተጠናቀቀ — QR አሁን ለማንኛውም ሰው ይሠራል።">ተጠናቀቀ — QR አሁን ለማንኛውም ሰው ይሠራል።</span>
+          </li>
+        </ol>
+      </div>
+    </div>
   </div>
 </main>
 
-<!-- Wishes / blessings -->
 <section class="card wishes" id="wishesCard" aria-labelledby="wishesTitle">
   <h2 class="section-title" id="wishesTitle"
       data-en="Wishes &amp; Blessings"
@@ -201,7 +301,6 @@
            data-ph-en="Your name" data-ph-am="ስምዎ" placeholder="ስምዎ">
     <textarea id="wishMsg" name="message" maxlength="280" rows="3" required
               data-ph-en="Your wish…" data-ph-am="ምኞትዎ…" placeholder="ምኞትዎ…"></textarea>
-    <!-- honeypot: hidden from humans, bots fill it -->
     <input type="text" id="wishTrap" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
     <button type="submit" class="btn primary"
             data-en="Send wish" data-am="ምኞት ላክ">ምኞት ላክ</button>
@@ -213,11 +312,9 @@
   </p>
 
   <div id="wishStatus" class="wish-status" role="status" aria-live="polite"></div>
-
   <ul id="wishList" class="wish-list" aria-live="polite"></ul>
 </section>
 
-<!-- Print-only 24 x 36 inch signboard -->
 <section class="sign" aria-hidden="true">
   <div>
     <p class="sub">ደስታችንን ይጋብዙን</p>
@@ -237,36 +334,53 @@
 
 <script>
   /* ============================================================
-     CONFIG  —  ይህን ክፍል ብቻ ያስተካክሉ
-     ------------------------------------------------------------
-     endpoint  — የጋራ የምኞት ግድግዳ (optional)
-                 Firebase Realtime Database ለምሳሌ፦
-                 "https://my-project-default-rtdb.firebaseio.com/wishes"
-                 ባዶ ካለ፣ ምኞቶች በጎብኚው መሣሪያ ላይ ብቻ ይቀመጣሉ።
-     whatsapp  — በቀጥታ ምኞት የሚላክበት ስልክ (optional)
-                 ምሳሌ፦ "251912345678"  (የሀገር ኮድ + ቁጥር፣ + ወይም ክፍተት የለም)
+     CONFIG
      ============================================================ */
   const WISHES_CONFIG = {
-    endpoint: "",
-    whatsapp: ""
+    endpoint: "",      // የጋራ የምኞት ግድግዳ (Firebase RTDB URL) - አማራጭ
+    whatsapp: ""       // በቀጥታ የሚላክበት ስልክ (ለምሳሌ "251912345678") - አማራጭ
   };
 
-  const INVITE_URL   = window.location.href.split("#")[0];
-  const PHOTO_KEY    = "invite-photo";
-  const WISHES_KEY   = "invite-wishes";
-  const LANG_KEY     = "invite-lang";
+  const PHOTO_KEY = "invite-photo";
+  const WISHES_KEY = "invite-wishes";
+  const LANG_KEY = "invite-lang";
+  const URL_KEY = "invite-public-url";
 
   let qrDataUrl = "";
   let currentLang = "am";
   let wishesCache = [];
   let currentStatusKey = "";
 
+  /* ---------- URL helpers ---------- */
+  function getPublicUrl() {
+    try {
+      const custom = localStorage.getItem(URL_KEY);
+      if (custom && /^https?:\/\//i.test(custom)) return custom;
+    } catch (e) {}
+    return window.location.href.split("#")[0];
+  }
+
+  function isLocalUrl(url) {
+    if (!url) return true;
+    if (url.startsWith("file://")) return true;
+    if (/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])/i.test(url)) return true;
+    return false;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
   /* ---------- QR ---------- */
   function buildQr() {
+    const url = getPublicUrl();
     const qr = qrcode(0, "M");
-    qr.addData(INVITE_URL);
+    qr.addData(url);
     qr.make();
     qrDataUrl = qr.createDataURL(8, 4);
+
     const box = document.getElementById("qrBox");
     box.innerHTML = "";
     const img = document.createElement("img");
@@ -274,6 +388,54 @@
     img.alt = "QR code to this invitation";
     box.appendChild(img);
     document.getElementById("qrPrint").src = qrDataUrl;
+
+    renderUrlStatus();
+  }
+
+  function renderUrlStatus() {
+    const url = getPublicUrl();
+    const warn = document.getElementById("urlWarn");
+    const input = document.getElementById("publicUrl");
+
+    if (isLocalUrl(url)) {
+      warn.className = "url-warn";
+      warn.innerHTML = currentLang === "am"
+        ? "⚠️ የአሁኑ አድራሻ የአካባቢ (local) ነው። ሌሎች ሰዎች ስካን ቢያደርጉ <strong>አይከፈትልዎትም</strong>። ከታች "ለሌሎች እንዲሠራ እንዴት ላድርግ?" የሚለውን ይጫኑ።"
+        : "⚠️ This address is local. Others who scan the QR <strong>won't be able to open it</strong>. Tap “How do I make it work for others?” below.";
+    } else {
+      warn.className = "url-warn ok";
+      warn.innerHTML = (currentLang === "am"
+        ? "✅ QR ወደዚህ አድራሻ ይመራል፦ "
+        : "✅ QR will open: ") + "<strong>" + escapeHtml(url) + "</strong>";
+    }
+
+    // Prefill input with the current value (only if the user hasn't typed yet)
+    if (!input.value) {
+      let stored = "";
+      try { stored = localStorage.getItem(URL_KEY) || ""; } catch (e) {}
+      input.value = stored || (isLocalUrl(url) ? "" : url);
+    }
+  }
+
+  function saveUrl() {
+    const input = document.getElementById("publicUrl");
+    const value = input.value.trim();
+
+    if (!value) {
+      try { localStorage.removeItem(URL_KEY); } catch (e) {}
+      buildQr();
+      return;
+    }
+    if (!/^https?:\/\/.+\..+/i.test(value)) {
+      const warn = document.getElementById("urlWarn");
+      warn.className = "url-warn";
+      warn.textContent = currentLang === "am"
+        ? "⚠️ እባክዎ ትክክለኛ URL ያስገቡ (ለምሳሌ https://edom-yohi.netlify.app)።"
+        : "⚠️ Please enter a valid URL (e.g. https://edom-yohi.netlify.app).";
+      return;
+    }
+    try { localStorage.setItem(URL_KEY, value); } catch (e) {}
+    buildQr();
   }
 
   /* ---------- Language ---------- */
@@ -293,6 +455,7 @@
 
     try { localStorage.setItem(LANG_KEY, currentLang); } catch (e) {}
 
+    renderUrlStatus();
     renderWishes(wishesCache);
     applyStatus(currentStatusKey);
     updateWaLink();
@@ -312,11 +475,8 @@
     const reader = new FileReader();
     reader.onload = () => {
       applyPhoto(reader.result);
-      try {
-        localStorage.setItem(PHOTO_KEY, reader.result);
-      } catch (err) {
-        console.warn("Photo too large to remember after reload.", err);
-      }
+      try { localStorage.setItem(PHOTO_KEY, reader.result); }
+      catch (err) { console.warn("Photo too large to remember after reload.", err); }
     };
     reader.readAsDataURL(file);
   });
@@ -354,11 +514,8 @@
     }
     const list = await loadWishes();
     list.unshift(wish);
-    try {
-      localStorage.setItem(WISHES_KEY, JSON.stringify(list.slice(0, 50)));
-    } catch (e) {
-      console.warn("Could not store wish locally.", e);
-    }
+    try { localStorage.setItem(WISHES_KEY, JSON.stringify(list.slice(0, 50))); }
+    catch (e) { console.warn("Could not store wish locally.", e); }
   }
 
   /* ---------- Wishes: render ---------- */
@@ -409,7 +566,7 @@
     renderWishes(wishesCache);
   }
 
-  /* ---------- Wishes: status messages ---------- */
+  /* ---------- Wishes: status ---------- */
   function applyStatus(key) {
     currentStatusKey = key || "";
     const el = document.getElementById("wishStatus");
@@ -451,17 +608,14 @@
   /* ---------- Wishes: form ---------- */
   document.getElementById("wishForm").addEventListener("submit", async e => {
     e.preventDefault();
-    if (document.getElementById("wishTrap").value) return; // bot
+    if (document.getElementById("wishTrap").value) return;
 
     const nameEl = document.getElementById("wishName");
     const msgEl  = document.getElementById("wishMsg");
     const name    = nameEl.value.trim().slice(0, 40);
     const message = msgEl.value.trim().slice(0, 280);
 
-    if (!name || !message) {
-      applyStatus("err");
-      return;
-    }
+    if (!name || !message) { applyStatus("err"); return; }
 
     const btn = e.target.querySelector('button[type="submit"]');
     btn.disabled = true;
@@ -501,6 +655,15 @@
   });
 
   document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+  document.getElementById("saveUrl").addEventListener("click", saveUrl);
+  document.getElementById("publicUrl").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); saveUrl(); }
+  });
+
+  document.getElementById("helpToggle").addEventListener("click", () => {
+    document.getElementById("helpBody").classList.toggle("hidden");
+  });
 
   /* ---------- Init ---------- */
   buildQr();
