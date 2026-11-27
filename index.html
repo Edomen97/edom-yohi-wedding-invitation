@@ -1,11 +1,6 @@
 /* ============================================================================
    EDOM & YOHI — PREMIUM BLACK & GOLD WEDDING WEBSITE
-   Single-file Node.js application (backend + public frontend + admin frontend)
-   Deploy target: Render Web Service
-   Required env vars (set in Render dashboard, never here):
-     DATABASE_URL, JWT_SECRET, ADMIN_PASSWORD_HASH,
-     CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET,
-     RESEND_API_KEY, ADMIN_EMAIL, FROM_EMAIL
+   Complete single-file Node.js application
    ============================================================================ */
 
 import "dotenv/config";
@@ -47,7 +42,10 @@ CREATE INDEX IF NOT EXISTS idx_wishes_dup ON wishes(dup_hash, created_at DESC);
 async function initDb(retries = 6) {
   for (let i = 0; i < retries; i++) {
     try { await pool.query(SCHEMA); console.log("DB ready"); return; }
-    catch (e) { console.warn("DB retry " + (i + 1) + ":", e.message); await new Promise(r => setTimeout(r, 3000)); }
+    catch (e) {
+      console.warn("DB retry " + (i + 1) + ":", e.message);
+      await new Promise(r => setTimeout(r, 3000));
+    }
   }
   console.error("DB init failed after retries");
 }
@@ -67,7 +65,9 @@ app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 
 const ADMIN_COOKIE = "ey_admin";
-function signAdminToken() { return jwt.sign({ role: "admin" }, process.env.JWT_SECRET, { expiresIn: "12h" }); }
+function signAdminToken() {
+  return jwt.sign({ role: "admin" }, process.env.JWT_SECRET, { expiresIn: "12h" });
+}
 function requireAdmin(req, res, next) {
   const token = req.cookies[ADMIN_COOKIE];
   if (!token) return res.status(401).json({ error: "Not authenticated" });
@@ -84,7 +84,13 @@ const apiLimiter   = rateLimit({ windowMs: 60 * 1000, max: 120 });
 app.use("/api", apiLimiter);
 
 function sha256(x) { return crypto.createHash("sha256").update(x).digest("hex"); }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ✅ FIXED: proper HTML entity escaping (XSS protection) */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
 
 /* ============================================================================
    API ROUTES
@@ -99,12 +105,20 @@ app.post("/api/admin/login", loginLimiter, async (req, res) => {
   const ok = await bcrypt.compare(password, process.env.ADMIN_PASSWORD_HASH);
   if (!ok) return res.status(401).json({ error: "Incorrect password" });
   res.cookie(ADMIN_COOKIE, signAdminToken(), {
-    httpOnly: true, secure: process.env.NODE_ENV === "production",
-    sameSite: "strict", maxAge: 12 * 60 * 60 * 1000, path: "/"
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 12 * 60 * 60 * 1000,
+    path: "/"
   });
   res.json({ ok: true });
 });
-app.post("/api/admin/logout", (_req, res) => { res.clearCookie(ADMIN_COOKIE, { path: "/" }); res.json({ ok: true }); });
+
+app.post("/api/admin/logout", (_req, res) => {
+  res.clearCookie(ADMIN_COOKIE, { path: "/" });
+  res.json({ ok: true });
+});
+
 app.get("/api/admin/me", requireAdmin, (_req, res) => res.json({ ok: true }));
 
 /* ---------- PHOTOS ---------- */
@@ -113,26 +127,44 @@ app.get("/api/photos", async (_req, res) => {
   res.json(rows);
 });
 
+/* ✅ FIXED: Cloudinary signature uses &timestamp= (not ×tamp=) */
 app.post("/api/admin/cloudinary-signature", requireAdmin, (_req, res) => {
   if (!process.env.CLOUDINARY_API_SECRET) return res.status(500).json({ error: "Cloudinary not configured" });
   const timestamp = Math.round(Date.now() / 1000);
   const folder = "edom-yohi-wedding";
-  const signature = crypto.createHash("sha1").update("folder=" + folder + "&timestamp=" + timestamp + process.env.CLOUDINARY_API_SECRET).digest("hex");
-  res.json({ cloudName: process.env.CLOUDINARY_CLOUD_NAME, apiKey: process.env.CLOUDINARY_API_KEY, timestamp, folder, signature });
+  const signature = crypto.createHash("sha1")
+    .update("folder=" + folder + "&timestamp=" + timestamp + process.env.CLOUDINARY_API_SECRET)
+    .digest("hex");
+  res.json({
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    timestamp,
+    folder,
+    signature
+  });
 });
 
 app.post("/api/admin/photos", requireAdmin, async (req, res) => {
   const { url, publicId, isHero } = req.body || {};
-  if (!url || !/^https:\/\/res\.cloudinary\.com\//.test(url)) return res.status(400).json({ error: "Invalid URL" });
+  if (!url || !/^https:\/\/res\.cloudinary\.com\//.test(url)) {
+    return res.status(400).json({ error: "Invalid URL" });
+  }
   const c = await pool.connect();
   try {
     await c.query("BEGIN");
     if (isHero) await c.query("UPDATE photos SET is_hero = FALSE");
-    const { rows } = await c.query("INSERT INTO photos (url, public_id, is_hero) VALUES ($1,$2,$3) RETURNING id, url, is_hero", [url, publicId || null, Boolean(isHero)]);
+    const { rows } = await c.query(
+      "INSERT INTO photos (url, public_id, is_hero) VALUES ($1,$2,$3) RETURNING id, url, is_hero",
+      [url, publicId || null, Boolean(isHero)]
+    );
     await c.query("COMMIT");
     res.status(201).json(rows[0]);
-  } catch { await c.query("ROLLBACK"); res.status(500).json({ error: "Save failed" }); }
-  finally { c.release(); }
+  } catch {
+    await c.query("ROLLBACK");
+    res.status(500).json({ error: "Save failed" });
+  } finally {
+    c.release();
+  }
 });
 
 app.patch("/api/admin/photos/:id/hero", requireAdmin, async (req, res) => {
@@ -144,37 +176,51 @@ app.patch("/api/admin/photos/:id/hero", requireAdmin, async (req, res) => {
     await c.query("COMMIT");
     if (!rowCount) return res.status(404).json({ error: "Not found" });
     res.json({ ok: true });
-  } catch { await c.query("ROLLBACK"); res.status(500).json({ error: "Failed" }); }
-  finally { c.release(); }
+  } catch {
+    await c.query("ROLLBACK");
+    res.status(500).json({ error: "Failed" });
+  } finally {
+    c.release();
+  }
 });
 
 app.delete("/api/admin/photos/:id", requireAdmin, async (req, res) => {
   const { rows } = await pool.query("SELECT public_id FROM photos WHERE id = $1", [Number(req.params.id)]);
   if (!rows.length) return res.status(404).json({ error: "Not found" });
-  if (rows[0].public_id) try { await cloudinary.uploader.destroy(rows[0].public_id); } catch (e) { console.warn("Cloud destroy:", e.message); }
+  if (rows[0].public_id) {
+    try { await cloudinary.uploader.destroy(rows[0].public_id); }
+    catch (e) { console.warn("Cloud destroy:", e.message); }
+  }
   await pool.query("DELETE FROM photos WHERE id = $1", [Number(req.params.id)]);
   res.json({ ok: true });
 });
 
 /* ---------- WISHES ---------- */
 app.get("/api/wishes", async (_req, res) => {
-  const { rows } = await pool.query("SELECT name, message, created_at FROM wishes WHERE approved = TRUE ORDER BY created_at DESC LIMIT 200");
+  const { rows } = await pool.query(
+    "SELECT name, message, created_at FROM wishes WHERE approved = TRUE ORDER BY created_at DESC LIMIT 200"
+  );
   res.json(rows);
 });
 
 app.post("/api/wishes", wishLimiter, async (req, res) => {
   const { name, email, message, website } = req.body || {};
   if (website) return res.status(400).json({ error: "Rejected" });
+
   const n = String(name || "").trim().slice(0, 80);
   const m = String(message || "").trim().slice(0, 1000);
   const e = String(email || "").trim().slice(0, 160);
+
   if (n.length < 2) return res.status(400).json({ error: "Please enter your name." });
   if (m.length < 3) return res.status(400).json({ error: "Please write a message." });
   if (e && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return res.status(400).json({ error: "Invalid email." });
 
   const dupHash = sha256(n.toLowerCase() + "|" + m.toLowerCase());
   const ipHash = sha256((req.ip || "?") + process.env.JWT_SECRET);
-  const dup = await pool.query("SELECT 1 FROM wishes WHERE dup_hash = $1 AND created_at > NOW() - INTERVAL '10 minutes' LIMIT 1", [dupHash]);
+  const dup = await pool.query(
+    "SELECT 1 FROM wishes WHERE dup_hash = $1 AND created_at > NOW() - INTERVAL '10 minutes' LIMIT 1",
+    [dupHash]
+  );
   if (dup.rowCount) return res.status(409).json({ error: "This message was already received." });
 
   const approve = String(process.env.AUTO_APPROVE_WISHES).toLowerCase() === "true";
@@ -183,18 +229,25 @@ app.post("/api/wishes", wishLimiter, async (req, res) => {
     [n, e || null, m, approve, dupHash, ipHash]
   );
 
+  /* ✅ FIXED: proper HTML email notification */
   if (resend && process.env.ADMIN_EMAIL && process.env.FROM_EMAIL) {
+    const emailHtml = [
+      '<div style="font-family:Georgia,serif;background:#0a0a0a;color:#EDE3D0;padding:32px;border-radius:12px;max-width:600px">',
+      '<h2 style="color:#D4AF37;margin:0 0 16px">New wish for EDOM &amp; Yohi</h2>',
+      '<p><strong style="color:#D4AF37">Name:</strong> ' + esc(n) + '</p>',
+      '<p><strong style="color:#D4AF37">Email:</strong> ' + (e ? esc(e) : '—') + '</p>',
+      '<p><strong style="color:#D4AF37">Date:</strong> ' + new Date(rows[0].created_at).toUTCString() + '</p>',
+      '<hr style="border-color:#333;margin:20px 0">',
+      '<p style="white-space:pre-wrap;line-height:1.7">' + esc(m) + '</p>',
+      '<p style="color:#888;font-size:12px;margin-top:24px">Wish #' + rows[0].id + ' · ' + (approve ? 'auto-approved' : 'pending approval') + '</p>',
+      '</div>'
+    ].join('');
+
     resend.emails.send({
       from: process.env.FROM_EMAIL,
       to: process.env.ADMIN_EMAIL,
       subject: "New wedding wish from " + n,
-      html: "<div style='font-family:Georgia,serif;background:#0a0a0a;color:#EDE3D0;padding:32px;border-radius:12px'>" +
-            "<h2 style='color:#D4AF37'>New wish for EDOM &amp; Yohi</h2>" +
-            "<p><strong style='color:#D4AF37'>Name:</strong> " + esc(n) + "</p>" +
-            "<p><strong style='color:#D4AF37'>Email:</strong> " + (e ? esc(e) : "—") + "</p>" +
-            "<p><strong style='color:#D4AF37'>Date:</strong> " + new Date(rows[0].created_at).toUTCString() + "</p>" +
-            "<hr style='border-color:#333'><p style='white-space:pre-wrap;line-height:1.7'>" + esc(m) + "</p>" +
-            "<p style='color:#888;font-size:12px'>Wish #" + rows[0].id + "</p></div>"
+      html: emailHtml
     }).catch(err => console.error("Resend:", err.message));
   }
 
@@ -202,20 +255,24 @@ app.post("/api/wishes", wishLimiter, async (req, res) => {
 });
 
 app.get("/api/admin/wishes", requireAdmin, async (_req, res) => {
-  const { rows } = await pool.query("SELECT id, name, email, message, approved, created_at FROM wishes ORDER BY created_at DESC LIMIT 500");
+  const { rows } = await pool.query(
+    "SELECT id, name, email, message, approved, created_at FROM wishes ORDER BY created_at DESC LIMIT 500"
+  );
   res.json(rows);
 });
+
 app.patch("/api/admin/wishes/:id/approve", requireAdmin, async (req, res) => {
   await pool.query("UPDATE wishes SET approved = TRUE WHERE id = $1", [Number(req.params.id)]);
   res.json({ ok: true });
 });
+
 app.delete("/api/admin/wishes/:id", requireAdmin, async (req, res) => {
   await pool.query("DELETE FROM wishes WHERE id = $1", [Number(req.params.id)]);
   res.json({ ok: true });
 });
 
 /* ============================================================================
-   FRONTEND HTML (inlined — no external files)
+   PUBLIC HTML (inlined — no external files)
    ============================================================================ */
 const PUBLIC_HTML = `<!DOCTYPE html>
 <html lang="am">
@@ -226,15 +283,16 @@ const PUBLIC_HTML = `<!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600&family=Noto+Serif+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"><\/script>
 <style>
 :root{--black:#080808;--gold:#D4AF37;--gold2:#F3E3A8;--gold3:#B8912E;--champagne:#F7E7CE;--text:#EDE3D0;--muted:#A89880;--line:rgba(212,175,55,.22);--serif:"Cormorant Garamond","Noto Serif Ethiopic",Georgia,serif;--script:"Great Vibes",cursive;--sans:"Montserrat","Noto Serif Ethiopic",sans-serif;--am:"Noto Serif Ethiopic",serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--black);color:var(--text);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden}
+body{margin:0;background:var(--black);color:var(--text);font-family:var(--sans);font-weight:300;line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 html[lang="am"] .lang-en{display:none!important}
 html[lang="en"] .lang-am{display:none!important}
 html[lang="am"]{font-family:var(--am)}
+img{max-width:100%;display:block}
 a{color:var(--gold);text-decoration:none}
 .wrap{max-width:820px;margin:0 auto;padding:0 22px}
 .sec{padding:88px 0;position:relative}
@@ -248,7 +306,7 @@ a{color:var(--gold);text-decoration:none}
 .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.4s ease}
 .hero-bg.on{opacity:.42}
 .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,8,.55),rgba(8,8,8,.85))}
-.rings{width:120px;height:120px;margin:0 auto 22px;filter:drop-shadow(0 0 18px rgba(212,175,55,.55))}
+.rings{width:120px;height:120px;margin:0 auto 22px;filter:drop-shadow(0 0 18px rgba(212,175,55,.55));position:relative;z-index:1}
 .rings svg{width:100%;height:100%;overflow:visible}
 .rings .r{fill:none;stroke:url(#gg);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:270;stroke-dashoffset:270;animation:draw 2.4s ease forwards}
 .rings .r2{animation-delay:.5s}
@@ -257,14 +315,14 @@ a{color:var(--gold);text-decoration:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spark{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold2);box-shadow:0 0 6px var(--gold);animation:tw 3s ease-in-out infinite}
 @keyframes tw{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.25)}}
-.kicker{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--gold);margin:0 0 8px}
-.names{font-family:var(--script);font-size:clamp(56px,17vw,116px);line-height:.95;margin:0;color:var(--gold2);font-weight:400;letter-spacing:1px}
+.kicker{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--gold);margin:0 0 8px;position:relative;z-index:1}
+.names{font-family:var(--script);font-size:clamp(56px,17vw,116px);line-height:.95;margin:0;color:var(--gold2);font-weight:400;letter-spacing:1px;position:relative;z-index:1}
 .names .amp{font-family:var(--serif);font-style:italic;color:var(--gold);font-size:.55em;margin:0 6px;display:inline-block;transform:translateY(-.15em)}
-.tag{font-family:var(--serif);font-size:clamp(15px,3.6vw,19px);color:var(--champagne);margin:18px auto 0;max-width:520px;line-height:1.6}
-.tag-am{font-family:var(--am);font-size:clamp(13px,3.2vw,16px);color:var(--muted);margin:8px auto 0;max-width:520px}
-.cta{display:inline-flex;align-items:center;gap:8px;margin-top:30px;padding:13px 30px;border:1px solid var(--gold);border-radius:999px;color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;transition:.3s}
+.tag{font-family:var(--serif);font-size:clamp(15px,3.6vw,19px);color:var(--champagne);margin:18px auto 0;max-width:520px;line-height:1.6;position:relative;z-index:1}
+.tag-am{font-family:var(--am);font-size:clamp(13px,3.2vw,16px);color:var(--muted);margin:8px auto 0;max-width:520px;position:relative;z-index:1}
+.cta{display:inline-flex;align-items:center;gap:8px;margin-top:30px;padding:13px 30px;border:1px solid var(--gold);border-radius:999px;color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;transition:.3s;position:relative;z-index:1}
 .cta:hover{background:var(--gold);color:#000}
-.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:520px;margin:36px auto 0}
+.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:520px;margin:36px auto 0;position:relative;z-index:1}
 .cd div{border:1px solid var(--line);border-radius:12px;padding:14px 4px;background:rgba(255,255,255,.02)}
 .cd b{display:block;font-family:var(--serif);font-size:clamp(26px,6vw,38px);font-weight:600;color:var(--gold2);line-height:1}
 .cd span{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:6px}
@@ -298,12 +356,12 @@ html[lang="am"] .guest{font-family:var(--am);font-size:16px;line-height:1.95}
 .card .s{font-size:13px;color:var(--muted);margin:6px 0 0}
 .map{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:12px;letter-spacing:1px;border-bottom:1px solid var(--line);padding-bottom:2px}
 .hero-frame{position:relative;max-width:520px;margin:0 auto;aspect-ratio:4/5;border-radius:20px;overflow:hidden;border:1px solid var(--gold3);box-shadow:0 30px 60px -30px rgba(0,0,0,.9);background:#101010}
-.hero-frame img{width:100%;height:100%;object-fit:cover}
+.hero-frame img{width:100%;height:100%;object-fit:cover;display:block}
 .hero-frame .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--gold3);font-family:var(--serif);font-style:italic}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:520px;margin:14px auto 0}
 .grid .t{aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#101010;transition:.3s}
 .grid .t:hover{transform:translateY(-3px);border-color:var(--gold)}
-.grid .t img{width:100%;height:100%;object-fit:cover}
+.grid .t img{width:100%;height:100%;object-fit:cover;display:block}
 .form{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .form input,.form textarea{font:inherit;font-size:15px;color:var(--text);background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:13px 15px;width:100%;transition:.25s}
 .form input:focus,.form textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.12)}
@@ -323,7 +381,7 @@ html[lang="am"] .guest{font-family:var(--am);font-size:16px;line-height:1.95}
 .wishes .d{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:6px 0 0}
 .wishes .empty{text-align:center;border:0;color:var(--muted);font-style:italic}
 .qr{max-width:380px;margin:0 auto;text-align:center;border:1px solid var(--line);border-radius:18px;padding:28px 22px;background:rgba(255,255,255,.02)}
-.qr img{width:180px;height:180px;margin:0 auto;padding:10px;background:#fff;border-radius:12px}
+.qr img{width:180px;height:180px;margin:0 auto;padding:10px;background:#fff;border-radius:12px;display:block}
 .qr .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
 .qr .acts .btn{font-size:10px;padding:10px 16px}
 .foot{text-align:center;padding:60px 20px calc(50px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
@@ -547,7 +605,8 @@ tick(); setInterval(tick, 1000);
 
 function loadPhotos(){
   fetch("/api/photos").then(function(r){ return r.json(); }).then(function(photos){
-    var hero = photos.find(function(p){ return p.is_hero; });
+    var hero = null;
+    for (var i = 0; i < photos.length; i++) { if (photos[i].is_hero) { hero = photos[i]; break; } }
     if (hero) {
       var bg = $("#heroBg");
       bg.style.backgroundImage = 'url("' + hero.url + '")';
@@ -560,12 +619,19 @@ function loadPhotos(){
       $("#heroPh").style.display = "flex";
     }
     var grid = $("#grid"); grid.innerHTML = "";
-    photos.filter(function(p){ return !p.is_hero; }).slice(0, 9).forEach(function(p){
+    var count = 0;
+    for (var j = 0; j < photos.length && count < 9; j++) {
+      if (photos[j].is_hero) continue;
       var d = document.createElement("div");
       d.className = "t";
-      d.innerHTML = '<img src="' + p.url + '" alt="Wedding photo" loading="lazy">';
+      var im = document.createElement("img");
+      im.src = photos[j].url;
+      im.alt = "Wedding photo";
+      im.loading = "lazy";
+      d.appendChild(im);
       grid.appendChild(d);
-    });
+      count++;
+    }
   }).catch(function(e){ console.warn("Photos unavailable", e); });
 }
 loadPhotos();
@@ -577,17 +643,19 @@ function loadWishes(){
       ul.innerHTML = '<li class="empty"><span class="lang-en">No wishes yet — be the first!</span><span class="lang-am">እስካሁን ምኞት አልተጻፈም — የመጀመሪያው ይሁኑ!</span></li>';
       return;
     }
-    list.forEach(function(w){
+    for (var i = 0; i < list.length; i++) {
+      var w = list[i];
       var li = document.createElement("li");
-      li.innerHTML = '<p class="n"></p><p class="m"></p><p class="d"></p>';
-      li.querySelector(".n").textContent = w.name;
-      li.querySelector(".m").textContent = w.message;
-      li.querySelector(".d").textContent = new Date(w.created_at).toLocaleDateString(
+      var pn = document.createElement("p"); pn.className = "n"; pn.textContent = w.name;
+      var pm = document.createElement("p"); pm.className = "m"; pm.textContent = w.message;
+      var pd = document.createElement("p"); pd.className = "d";
+      pd.textContent = new Date(w.created_at).toLocaleDateString(
         document.documentElement.lang === "am" ? "am-ET" : "en-GB",
         { year: "numeric", month: "short", day: "numeric" }
       );
+      li.appendChild(pn); li.appendChild(pm); li.appendChild(pd);
       ul.appendChild(li);
-    });
+    }
   }).catch(function(e){ console.warn("Wishes unavailable", e); });
 }
 loadWishes();
@@ -629,10 +697,15 @@ $("#wishForm").addEventListener("submit", function(e){
 
 var publicUrl = window.location.origin + "/";
 try {
-  var qr = qrcode(0, "M");
-  qr.addData(publicUrl);
-  qr.make();
-  $("#qrBox").innerHTML = '<img src="' + qr.createDataURL(8, 4) + '" alt="QR code">';
+  if (typeof qrcode !== "undefined") {
+    var qr = qrcode(0, "M");
+    qr.addData(publicUrl);
+    qr.make();
+    var img = document.createElement("img");
+    img.src = qr.createDataURL(8, 4);
+    img.alt = "QR code";
+    $("#qrBox").appendChild(img);
+  }
 } catch(e){ console.warn("QR failed", e); }
 
 $("#copyLink").onclick = function(){
@@ -657,10 +730,13 @@ var io = new IntersectionObserver(function(entries){
   entries.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); } });
 }, { threshold: 0.12 });
 $$(".rv").forEach(function(el){ io.observe(el); });
-</script>
+<\/script>
 </body>
 </html>`;
 
+/* ============================================================================
+   ADMIN HTML (inlined — no external files)
+   ============================================================================ */
 const ADMIN_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -670,15 +746,16 @@ const ADMIN_HTML = `<!DOCTYPE html>
 <style>
 :root{--black:#080808;--gold:#D4AF37;--line:rgba(212,175,55,.25);--text:#EDE3D0;--muted:#A89880;--red:#e0796f;--green:#7dd3a0}
 *{box-sizing:border-box}
-body{margin:0;background:var(--black);color:var(--text);font-family:Montserrat,system-ui,sans-serif;font-weight:300;min-height:100vh;padding:24px 16px}
+body{margin:0;background:var(--black);color:var(--text);font-family:Montserrat,system-ui,sans-serif;font-weight:300;min-height:100vh;padding:24px 16px;-webkit-font-smoothing:antialiased}
 .wrap{max-width:900px;margin:0 auto}
-h1{font-family:Georgia,serif;color:var(--gold);font-weight:400;text-align:center;margin:0 0 6px}
+h1{font-family:Georgia,serif;color:var(--gold);font-weight:400;text-align:center;margin:0 0 6px;font-size:26px}
 .sub{text-align:center;color:var(--muted);font-size:13px;margin:0 0 24px}
 .card{border:1px solid var(--line);border-radius:14px;padding:24px;background:rgba(255,255,255,.02);margin-bottom:18px}
 input,button,textarea{font:inherit;font-size:14px}
 input[type=password],input[type=file]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#111;color:var(--text);margin-bottom:10px}
-button{cursor:pointer;border-radius:999px;padding:10px 20px;border:1px solid var(--gold);background:var(--gold);color:#000;font-weight:600;transition:.25s}
+button{cursor:pointer;border-radius:999px;padding:10px 20px;border:1px solid var(--gold);background:var(--gold);color:#000;font-weight:600;letter-spacing:.5px;transition:.25s}
 button:hover{background:transparent;color:var(--gold)}
+button:disabled{opacity:.5;cursor:not-allowed}
 button.ghost{background:transparent;color:var(--gold)}
 button.ghost:hover{background:var(--gold);color:#000}
 button.danger{border-color:var(--red);background:transparent;color:var(--red)}
@@ -697,7 +774,7 @@ button.small{padding:6px 12px;font-size:12px}
 .wish{border-left:2px solid var(--gold);padding:12px 16px;border-radius:0 10px 10px 0;background:rgba(255,255,255,.02);margin-bottom:10px}
 .wish .n{color:var(--gold);font-weight:600;margin:0 0 4px}
 .wish .e{color:var(--muted);font-size:12px;margin:0 0 6px}
-.wish .m{margin:0 0 8px;white-space:pre-wrap;line-height:1.55}
+.wish .m{margin:0 0 8px;white-space:pre-wrap;line-height:1.55;word-break:break-word}
 .wish .meta{font-size:11px;color:var(--muted);margin-bottom:8px}
 .wish .badge{display:inline-block;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-left:6px}
 .wish .badge.ok{background:rgba(125,211,160,.15);color:var(--green)}
@@ -710,6 +787,7 @@ button.small{padding:6px 12px;font-size:12px}
 <div class="wrap">
   <h1>EDOM &amp; Yohi — Admin</h1>
   <p class="sub">Private control panel. Not linked from the public invitation.</p>
+
   <div id="loginView" class="card">
     <input id="pwd" type="password" placeholder="Admin password" autocomplete="current-password">
     <div class="row">
@@ -718,13 +796,15 @@ button.small{padding:6px 12px;font-size:12px}
     </div>
     <p id="loginMsg" class="msg"></p>
   </div>
+
   <div id="dashView" class="hidden">
     <div class="tabs">
       <button id="tabPhotos" class="active">Photos</button>
       <button id="tabWishes" class="ghost">Wishes</button>
     </div>
+
     <div id="photosPane" class="card">
-      <h2 style="margin:0 0 10px;color:var(--gold);font-weight:400">Upload a photo</h2>
+      <h2 style="margin:0 0 10px;color:var(--gold);font-weight:400;font-size:18px">Upload a photo</h2>
       <input type="file" id="file" accept="image/*">
       <div class="row">
         <button id="uploadBtn">Upload</button>
@@ -733,50 +813,72 @@ button.small{padding:6px 12px;font-size:12px}
       <p id="photoMsg" class="msg"></p>
       <div id="photoGrid" class="photo-grid"></div>
     </div>
+
     <div id="wishesPane" class="card hidden">
       <div class="row" style="justify-content:space-between;margin-bottom:12px">
-        <h2 style="margin:0;color:var(--gold);font-weight:400">Guest wishes</h2>
+        <h2 style="margin:0;color:var(--gold);font-weight:400;font-size:18px">Guest wishes</h2>
         <button class="ghost small" id="refreshWishes">Refresh</button>
       </div>
       <div id="wishList"></div>
     </div>
   </div>
 </div>
+
 <script>
 var $ = function(s){ return document.querySelector(s); };
 function msg(el, text, type){ var e = $(el); e.textContent = text; e.className = "msg " + (type || ""); }
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
 function api(path, opts){
   opts = opts || {};
   return fetch(path, {
     credentials: "same-origin",
     headers: Object.assign({ "Content-Type": "application/json" }, opts.headers || {}),
     method: opts.method, body: opts.body
-  }).then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ if (!r.ok) throw new Error(d.error || ("HTTP " + r.status)); return d; }); });
+  }).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(d){
+      if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
+      return d;
+    });
+  });
 }
+
 function checkSession(){
   api("/api/admin/me").then(showDash).catch(function(){
     $("#dashView").classList.add("hidden");
     $("#loginView").classList.remove("hidden");
   });
 }
+
 function showDash(){
   $("#loginView").classList.add("hidden");
   $("#dashView").classList.remove("hidden");
-  loadPhotos(); loadWishes();
+  $("#logoutBtn").classList.remove("hidden");
+  loadPhotos();
+  loadWishes();
 }
+
 $("#loginBtn").onclick = function(){
   msg("#loginMsg", "");
   api("/api/admin/login", { method: "POST", body: JSON.stringify({ password: $("#pwd").value }) })
     .then(function(){ $("#pwd").value = ""; showDash(); })
     .catch(function(e){ msg("#loginMsg", e.message, "err"); });
 };
+
 $("#pwd").addEventListener("keydown", function(e){ if (e.key === "Enter") $("#loginBtn").click(); });
+
 $("#logoutBtn").onclick = function(){
   api("/api/admin/logout", { method: "POST" }).then(function(){
     $("#dashView").classList.add("hidden");
     $("#loginView").classList.remove("hidden");
+    $("#logoutBtn").classList.add("hidden");
   });
 };
+
 $("#tabPhotos").onclick = function(){
   $("#tabPhotos").classList.add("active"); $("#tabPhotos").classList.remove("ghost");
   $("#tabWishes").classList.remove("active"); $("#tabWishes").classList.add("ghost");
@@ -787,6 +889,7 @@ $("#tabWishes").onclick = function(){
   $("#tabPhotos").classList.remove("active"); $("#tabPhotos").classList.add("ghost");
   $("#wishesPane").classList.remove("hidden"); $("#photosPane").classList.add("hidden");
 };
+
 function loadPhotos(){
   api("/api/photos").then(function(photos){
     var grid = $("#photoGrid"); grid.innerHTML = "";
@@ -794,32 +897,49 @@ function loadPhotos(){
     photos.forEach(function(p){
       var card = document.createElement("div");
       card.className = "photo";
-      card.innerHTML = '<img src="' + p.url + '" alt="">' +
-        '<div class="info">' +
-        (p.is_hero ? '<span class="hero-tag">★ Hero</span>' : '') +
-        '<div class="row">' +
-        (!p.is_hero ? '<button class="ghost small" data-hero>Set hero</button>' : '') +
-        '<button class="danger small" data-del>Delete</button>' +
-        '</div></div>';
-      var hb = card.querySelector("[data-hero]");
-      if (hb) hb.addEventListener("click", function(){
-        api("/api/admin/photos/" + p.id + "/hero", { method: "PATCH" }).then(loadPhotos).catch(function(e){ alert(e.message); });
-      });
-      card.querySelector("[data-del]").addEventListener("click", function(){
+      var img = document.createElement("img");
+      img.src = p.url; img.alt = "";
+      card.appendChild(img);
+      var info = document.createElement("div");
+      info.className = "info";
+      if (p.is_hero) {
+        var tag = document.createElement("span");
+        tag.className = "hero-tag"; tag.textContent = "★ Hero";
+        info.appendChild(tag);
+      }
+      var row = document.createElement("div");
+      row.className = "row";
+      if (!p.is_hero) {
+        var hb = document.createElement("button");
+        hb.className = "ghost small"; hb.textContent = "Set hero";
+        hb.onclick = function(){
+          api("/api/admin/photos/" + p.id + "/hero", { method: "PATCH" }).then(loadPhotos).catch(function(e){ alert(e.message); });
+        };
+        row.appendChild(hb);
+      }
+      var db = document.createElement("button");
+      db.className = "danger small"; db.textContent = "Delete";
+      db.onclick = function(){
         if (!confirm("Delete this photo permanently?")) return;
         api("/api/admin/photos/" + p.id, { method: "DELETE" }).then(loadPhotos).catch(function(e){ alert(e.message); });
-      });
+      };
+      row.appendChild(db);
+      info.appendChild(row);
+      card.appendChild(info);
       grid.appendChild(card);
     });
   }).catch(function(e){ console.warn(e); });
 }
+
 $("#uploadBtn").onclick = function(){
   var file = $("#file").files[0];
   if (!file) return msg("#photoMsg", "Choose a file first.", "err");
   if (!file.type.startsWith("image/")) return msg("#photoMsg", "Only image files allowed.", "err");
   if (file.size > 10 * 1024 * 1024) return msg("#photoMsg", "Maximum 10 MB.", "err");
+
   $("#uploadBtn").disabled = true;
   msg("#photoMsg", "Uploading…");
+
   api("/api/admin/cloudinary-signature", { method: "POST" }).then(function(sig){
     var fd = new FormData();
     fd.append("file", file);
@@ -827,18 +947,31 @@ $("#uploadBtn").onclick = function(){
     fd.append("timestamp", sig.timestamp);
     fd.append("signature", sig.signature);
     fd.append("folder", sig.folder);
+
     return fetch("https://api.cloudinary.com/v1_1/" + sig.cloudName + "/image/upload", { method: "POST", body: fd })
-      .then(function(up){ return up.json().then(function(d){ if (!up.ok) throw new Error(d.error ? d.error.message : "Upload failed"); return d; }); })
+      .then(function(up){
+        return up.json().then(function(d){
+          if (!up.ok) throw new Error(d.error ? d.error.message : "Upload failed");
+          return d;
+        });
+      })
       .then(function(data){
-        return api("/api/admin/photos", { method: "POST", body: JSON.stringify({ url: data.secure_url, publicId: data.public_id, isHero: $("#asHero").checked }) });
+        return api("/api/admin/photos", {
+          method: "POST",
+          body: JSON.stringify({ url: data.secure_url, publicId: data.public_id, isHero: $("#asHero").checked })
+        });
       });
   }).then(function(){
     $("#file").value = ""; $("#asHero").checked = false;
     msg("#photoMsg", "Photo uploaded.", "ok");
     loadPhotos();
-  }).catch(function(e){ msg("#photoMsg", e.message, "err"); })
-    .finally(function(){ $("#uploadBtn").disabled = false; });
+  }).catch(function(e){
+    msg("#photoMsg", e.message, "err");
+  }).finally(function(){
+    $("#uploadBtn").disabled = false;
+  });
 };
+
 function loadWishes(){
   api("/api/admin/wishes").then(function(wishes){
     var list = $("#wishList"); list.innerHTML = "";
@@ -846,28 +979,53 @@ function loadWishes(){
     wishes.forEach(function(w){
       var card = document.createElement("div");
       card.className = "wish";
-      card.innerHTML =
-        '<p class="n">' + esc(w.name) + ' <span class="badge ' + (w.approved ? "ok" : "pending") + '">' + (w.approved ? "Approved" : "Pending") + '</span></p>' +
-        (w.email ? '<p class="e">' + esc(w.email) + '</p>' : '') +
-        '<p class="m">' + esc(w.message) + '</p>' +
-        '<p class="meta">' + new Date(w.created_at).toUTCString() + ' · #' + w.id + '</p>' +
-        '<div class="row">' + (!w.approved ? '<button class="small" data-approve>Approve</button>' : '') + '<button class="danger small" data-del>Delete</button></div>';
-      var ab = card.querySelector("[data-approve]");
-      if (ab) ab.addEventListener("click", function(){
-        api("/api/admin/wishes/" + w.id + "/approve", { method: "PATCH" }).then(loadWishes).catch(function(e){ alert(e.message); });
-      });
-      card.querySelector("[data-del]").addEventListener("click", function(){
+
+      var pn = document.createElement("p"); pn.className = "n";
+      pn.textContent = w.name + " ";
+      var badge = document.createElement("span");
+      badge.className = "badge " + (w.approved ? "ok" : "pending");
+      badge.textContent = w.approved ? "Approved" : "Pending";
+      pn.appendChild(badge);
+      card.appendChild(pn);
+
+      if (w.email) {
+        var pe = document.createElement("p"); pe.className = "e"; pe.textContent = w.email;
+        card.appendChild(pe);
+      }
+      var pm = document.createElement("p"); pm.className = "m"; pm.textContent = w.message;
+      card.appendChild(pm);
+
+      var pmeta = document.createElement("p"); pmeta.className = "meta";
+      pmeta.textContent = new Date(w.created_at).toUTCString() + " · #" + w.id;
+      card.appendChild(pmeta);
+
+      var row = document.createElement("div"); row.className = "row";
+      if (!w.approved) {
+        var ab = document.createElement("button");
+        ab.className = "small"; ab.textContent = "Approve";
+        ab.onclick = function(){
+          api("/api/admin/wishes/" + w.id + "/approve", { method: "PATCH" }).then(loadWishes).catch(function(e){ alert(e.message); });
+        };
+        row.appendChild(ab);
+      }
+      var db = document.createElement("button");
+      db.className = "danger small"; db.textContent = "Delete";
+      db.onclick = function(){
         if (!confirm("Delete this wish permanently?")) return;
         api("/api/admin/wishes/" + w.id, { method: "DELETE" }).then(loadWishes).catch(function(e){ alert(e.message); });
-      });
+      };
+      row.appendChild(db);
+      card.appendChild(row);
+
       list.appendChild(card);
     });
   }).catch(function(e){ console.warn(e); });
 }
+
 $("#refreshWishes").onclick = loadWishes;
-function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
+
 checkSession();
-</script>
+<\/script>
 </body>
 </html>`;
 
