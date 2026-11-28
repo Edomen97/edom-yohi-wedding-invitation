@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — EDOM &amp; Yohi</title>
+<style>
+:root{--black:#080808;--gold:#D4AF37;--gold2:#F3E3A8;--line:rgba(212,175,55,.25);--text:#EDE3D0;--muted:#A89880;--red:#e0796f;--green:#7dd3a0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--black);color:var(--text);font-family:Montserrat,system-ui,sans-serif;font-weight:300;min-height:100vh;padding:24px 16px}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-family:Georgia,serif;color:var(--gold);font-weight:400;text-align:center;margin:0 0 6px}
+.sub{text-align:center;color:var(--muted);font-size:13px;margin:0 0 24px}
+.card{border:1px solid var(--line);border-radius:14px;padding:24px;background:rgba(255,255,255,.02);margin-bottom:18px}
+input,button,textarea{font:inherit;font-size:14px}
+input[type=password],input[type=file]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#111;color:var(--text);margin-bottom:10px}
+button{cursor:pointer;border-radius:999px;padding:10px 20px;border:1px solid var(--gold);background:var(--gold);color:#000;font-weight:600;letter-spacing:.5px;transition:.25s}
+button:hover{background:transparent;color:var(--gold)}
+button.ghost{background:transparent;color:var(--gold)}
+button.ghost:hover{background:var(--gold);color:#000}
+button.danger{border-color:var(--red);background:transparent;color:var(--red)}
+button.danger:hover{background:var(--red);color:#000}
+button.small{padding:6px 12px;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tabs{display:flex;gap:8px;margin-bottom:18px}
+.tabs button{flex:1}
+.tabs button.active{background:var(--gold);color:#000}
+.hidden{display:none!important}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:14px}
+.photo{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#111}
+.photo img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.photo .info{padding:10px;display:flex;flex-direction:column;gap:6px}
+.photo .hero-tag{font-size:10px;letter-spacing:1px;color:var(--gold);text-transform:uppercase}
+.wish{border-left:2px solid var(--gold);padding:12px 16px;border-radius:0 10px 10px 0;background:rgba(255,255,255,.02);margin-bottom:10px}
+.wish .n{color:var(--gold);font-weight:600;margin:0 0 4px}
+.wish .e{color:var(--muted);font-size:12px;margin:0 0 6px}
+.wish .m{margin:0 0 8px;white-space:pre-wrap;line-height:1.55}
+.wish .meta{font-size:11px;color:var(--muted);margin-bottom:8px}
+.wish .badge{display:inline-block;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-left:6px}
+.wish .badge.ok{background:rgba(125,211,160,.15);color:var(--green)}
+.wish .badge.pending{background:rgba(212,175,55,.15);color:var(--gold)}
+.msg{font-size:13px;margin:10px 0 0;min-height:1em}
+.msg.err{color:var(--red)}.msg.ok{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EDOM &amp; Yohi — Admin</h1>
+  <p class="sub">Private control panel. Not linked from the public invitation.</p>
+
+  <!-- LOGIN -->
+  <div id="loginView" class="card">
+    <input id="pwd" type="password" placeholder="Admin password" autocomplete="current-password">
+    <div class="row">
+      <button id="loginBtn">Sign in</button>
+      <button id="logoutBtn" class="ghost hidden">Sign out</button>
+    </div>
+    <p id="loginMsg" class="msg"></p>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashView" class="hidden">
+    <div class="tabs">
+      <button id="tabPhotos" class="active">Photos</button>
+      <button id="tabWishes" class="ghost">Wishes</button>
+    </div>
+
+    <!-- PHOTOS -->
+    <div id="photosPane" class="card">
+      <h2 style="margin:0 0 10px;color:var(--gold);font-weight:400">Upload a photo</h2>
+      <input type="file" id="file" accept="image/*">
+      <div class="row">
+        <button id="uploadBtn">Upload</button>
+        <label style="display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px">
+          <input type="checkbox" id="asHero"> Set as hero
+        </label>
+      </div>
+      <p id="photoMsg" class="msg"></p>
+      <div id="photoGrid" class="photo-grid"></div>
+    </div>
+
+    <!-- WISHES -->
+    <div id="wishesPane" class="card hidden">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <h2 style="margin:0;color:var(--gold);font-weight:400">Guest wishes</h2>
+        <button class="ghost small" id="refreshWishes">Refresh</button>
+      </div>
+      <div id="wishList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const msg = (el, text, type = "") => {
+  const e = $(el); e.textContent = text; e.className = "msg " + type;
+};
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+    ...opts
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+/* ---------- session ---------- */
+async function checkSession() {
+  try {
+    await api("/api/admin/me");
+    showDash();
+  } catch {
+    $("#dashView").classList.add("hidden");
+    $("#loginView").classList.remove("hidden");
+  }
+}
+
+function showDash() {
+  $("#loginView").classList.add("hidden");
+  $("#dashView").classList.remove("hidden");
+  loadPhotos();
+  loadWishes();
+}
+
+$("#loginBtn").onclick = async () => {
+  msg("#loginMsg", "");
+  try {
+    await api("/api/admin/login", {
+      method: "POST",
+      body: JSON.stringify({ password: $("#pwd").value })
+    });
+    $("#pwd").value = "";
+    showDash();
+  } catch (e) { msg("#loginMsg", e.message, "err"); }
+};
+
+$("#pwd").addEventListener("keydown", e => {
+  if (e.key === "Enter") $("#loginBtn").click();
+});
+
+$("#logoutBtn").onclick = async () => {
+  await api("/api/admin/logout", { method: "POST" });
+  $("#dashView").classList.add("hidden");
+  $("#loginView").classList.remove("hidden");
+};
+
+/* ---------- tabs ---------- */
+$("#tabPhotos").onclick = () => {
+  $("#tabPhotos").classList.add("active"); $("#tabPhotos").classList.remove("ghost");
+  $("#tabWishes").classList.remove("active"); $("#tabWishes").classList.add("ghost");
+  $("#photosPane").classList.remove("hidden"); $("#wishesPane").classList.add("hidden");
+};
+$("#tabWishes").onclick = () => {
+  $("#tabWishes").classList.add("active"); $("#tabWishes").classList.remove("ghost");
+  $("#tabPhotos").classList.remove("active"); $("#tabPhotos").classList.add("ghost");
+  $("#wishesPane").classList.remove("hidden"); $("#photosPane").classList.add("hidden");
+};
+
+/* ---------- photos ---------- */
+async function loadPhotos() {
+  try {
+    const photos = await api("/api/photos");
+    const grid = $("#photoGrid"); grid.innerHTML = "";
+    if (!photos.length) {
+      grid.innerHTML = `<p style="color:var(--muted);font-size:13px">No photos yet.</p>`;
+      return;
+    }
+    photos.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "photo";
+      card.innerHTML = `
+        <img src="${p.url}" alt="">
+        <div class="info">
+          ${p.is_hero ? '<span class="hero-tag">★ Hero photo</span>' : ""}
+          <div class="row">
+            ${!p.is_hero ? '<button class="ghost small" data-hero>Set hero</button>' : ""}
+            <button class="danger small" data-del>Delete</button>
+          </div>
+        </div>`;
+      card.querySelector("[data-hero]")?.addEventListener("click", async () => {
+        try { await api(`/api/admin/photos/${p.id}/hero`, { method: "PATCH" }); loadPhotos(); }
+        catch (e) { alert(e.message); }
+      });
+      card.querySelector("[data-del]").addEventListener("click", async () => {
+        if (!confirm("Delete this photo permanently?")) return;
+        try { await api(`/api/admin/photos/${p.id}`, { method: "DELETE" }); loadPhotos(); }
+        catch (e) { alert(e.message); }
+      });
+      grid.appendChild(card);
+    });
+  } catch (e) { console.warn(e); }
+}
+
+$("#uploadBtn").onclick = async () => {
+  const file = $("#file").files[0];
+  if (!file) return msg("#photoMsg", "Choose a file first.", "err");
+  if (!file.type.startsWith("image/")) return msg("#photoMsg", "Only image files are allowed.", "err");
+  if (file.size > 10 * 1024 * 1024) return msg("#photoMsg", "Maximum file size is 10 MB.", "err");
+
+  $("#uploadBtn").disabled = true;
+  msg("#photoMsg", "Uploading…");
+
+  try {
+    // 1) Get a one-time signature from our server (never exposes API secret)
+    const sig = await api("/api/admin/cloudinary-signature", { method: "POST" });
+
+    // 2) Upload directly to Cloudinary
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("api_key", sig.apiKey);
+    fd.append("timestamp", sig.timestamp);
+    fd.append("signature", sig.signature);
+    fd.append("folder", sig.folder);
+
+    const up = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, {
+      method: "POST",
+      body: fd
+    });
+    const data = await up.json();
+    if (!up.ok) throw new Error(data.error?.message || "Cloudinary upload failed");
+
+    // 3) Persist metadata in our database
+    await api("/api/admin/photos", {
+      method: "POST",
+      body: JSON.stringify({
+        url: data.secure_url,
+        publicId: data.public_id,
+        isHero: $("#asHero").checked
+      })
+    });
+
+    $("#file").value = "";
+    $("#asHero").checked = false;
+    msg("#photoMsg", "Photo uploaded successfully.", "ok");
+    loadPhotos();
+  } catch (e) {
+    msg("#photoMsg", e.message, "err");
+  } finally {
+    $("#uploadBtn").disabled = false;
+  }
+};
+
+/* ---------- wishes ---------- */
+async function loadWishes() {
+  try {
+    const wishes = await api("/api/admin/wishes");
+    const list = $("#wishList"); list.innerHTML = "";
+    if (!wishes.length) {
+      list.innerHTML = `<p style="color:var(--muted);font-size:13px">No wishes yet.</p>`;
+      return;
+    }
+    wishes.forEach(w => {
+      const card = document.createElement("div");
+      card.className = "wish";
+      card.innerHTML = `
+        <p class="n">${escapeHtml(w.name)}
+          <span class="badge ${w.approved ? "ok" : "pending"}">${w.approved ? "Approved" : "Pending"}</span>
+        </p>
+        ${w.email ? `<p class="e">${escapeHtml(w.email)}</p>` : ""}
+        <p class="m">${escapeHtml(w.message)}</p>
+        <p class="meta">${new Date(w.created_at).toUTCString()} · #${w.id}</p>
+        <div class="row">
+          ${!w.approved ? '<button class="small" data-approve>Approve</button>' : ""}
+          <button class="danger small" data-del>Delete</button>
+        </div>`;
+      card.querySelector("[data-approve]")?.addEventListener("click", async () => {
+        try { await api(`/api/admin/wishes/${w.id}/approve`, { method: "PATCH" }); loadWishes(); }
+        catch (e) { alert(e.message); }
+      });
+      card.querySelector("[data-del]").addEventListener("click", async () => {
+        if (!confirm("Delete this wish permanently?")) return;
+        try { await api(`/api/admin/wishes/${w.id}`, { method: "DELETE" }); loadWishes(); }
+        catch (e) { alert(e.message); }
+      });
+      list.appendChild(card);
+    });
+  } catch (e) { console.warn(e); }
+}
+
+$("#refreshWishes").onclick = loadWishes;
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+checkSession();
+</script>
+</body>
+</html>
