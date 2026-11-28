@@ -1226,4 +1226,4 @@ app.get("*", (_req, res) => res.type("html").send(PUBLIC_HTML));
    ============================================================================ */
 initDb().finally(() => {
   app.listen(PORT, () => console.log(`EDOM & YOHI listening on :${PORT}`));
-});
+}); 
