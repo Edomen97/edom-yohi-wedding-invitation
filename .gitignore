@@ -1,0 +1,4 @@
+Node_modules/
+.env
+.DS_Store
+*.log faile name
